@@ -73,6 +73,16 @@ SEVERITY_WEIGHT = {"critical": 10, "high": 4, "medium": 1, "low": 0.25}
 SEVERITY_ORDER  = ["critical", "high", "medium", "low"]
 SKILL_ORDER     = ["DV", "FS", "EN", "ED"]
 
+# Findings whose severity legitimately compounds when the SAME gap is present on
+# every crawled page — a missing description / schema / freshness signal site-wide
+# is materially worse than on one page. Structural and page-local findings are
+# deliberately excluded (see _merge_findings).
+ESCALATABLE_IDS = frozenset({
+    "DV-02", "DV-03", "DV-09b", "DV-11", "DV-18",
+    "FS-01", "FS-03",
+    "ED-04", "ED-05",
+})
+
 # Health thresholds (weighted defect score)
 def _health_label(score: float) -> str:
     if score == 0:       return "excellent"
@@ -286,10 +296,14 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
         finding["pages"] = affected
         base_sev = finding.get("severity", "low")
         site_wide = len(affected) >= 3 and len(affected) == total_pages
-        # Escalate a genuinely site-wide MEDIUM to HIGH. `critical` is reserved
-        # for what a check explicitly sets critical (DV-01 auto, DV-13, DV-16) —
-        # crawl breadth alone must never manufacture a `critical`.
-        if site_wide and base_sev == "medium":
+        # Escalate a genuinely site-wide MEDIUM to HIGH — but only for
+        # metadata/identity gaps that actually compound when repeated on every
+        # page. Structural/engagement findings (DV-15 repeated block, FS-04
+        # nav/footer drift, EN-05 hidden tabs, …) are the same on every page
+        # *because it is one template*; the repeat count is not new information,
+        # and `critical` stays reserved for checks that set it explicitly.
+        if (site_wide and base_sev == "medium"
+                and fid in ESCALATABLE_IDS):
             finding["severity"] = "high"
             if isinstance(finding.get("suggested_action"), dict):
                 finding["suggested_action"]["priority"] = "high"

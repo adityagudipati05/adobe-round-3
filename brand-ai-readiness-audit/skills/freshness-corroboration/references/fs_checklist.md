@@ -30,6 +30,10 @@ Extract date strings from banners, notices, copyright lines, and body text.
 Cross-reference with a "current/upcoming" context keyword in the same sentence.  
 Compare parsed date against today's system date; flag if in the past.
 
+**Must-do to avoid false positives:**  
+- Strip `<script>`/`<style>`/`<template>` before scanning — bundled-library licence headers ("Copyright © 2012-2021 Faisal Salman", jQuery, etc.) are **not** the site's copyright.  
+- A copyright **year range** ("© 2012-2024") is current as of its **latest** year — parse to the range end, not the start.
+
 **Context keywords triggering comparison:**  
 `scheduled for`, `upcoming`, `current`, `now live`, `maintenance`, `registration open`,  
 `deadline`, `apply before`, `last date`, `due date`, `notice`, `alert`, `©`, `copyright`

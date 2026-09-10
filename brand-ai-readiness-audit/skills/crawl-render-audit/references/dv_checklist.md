@@ -255,18 +255,19 @@ If collision risk exists AND the missing schema lacks `identifier`/`sameAs` fiel
 
 ## DV-15 — Structural content duplication (broken carousel/slider render)
 
-**Detection:** Script-able. Hash/fingerprint DOM blocks (`div`, `section`, `article`, `li`); count identical or near-identical (> 95 % similarity) sibling blocks. Threshold: > 3 exact repeats of a substantial block (> 80 chars).
+**Detection:** Script-able. Hash/fingerprint DOM blocks (`div`, `section`, `article`, `li`); count identical sibling blocks. Threshold: **> 5** exact repeats of a **substantial prose block (≥ 120 chars)** — short repeated strings are nav chips, price disclaimers, or repeated CTAs, not a render artefact. Report on the single most-repeated block.
 
 | Repeat count | Severity |
 |-------------|----------|
-| 4–10 | Low |
+| 6–10 | Low |
 | 11–20 | Medium |
 | > 20 | High |
 
-**Gallery/carousel exception:** when the repeated block is image-gallery UI
-(sample text contains `image N of`, `view all`, `hero image`, `slide`,
-`thumbnail`, `zoom`, `gallery`), cap at **Low** regardless of count — cloning
-one caption block per slide is a minor extraction nuisance, not manipulation.
+**Boilerplate exception:** when the most-repeated block is gallery UI
+(`image N of`, `view all`, `slide`, `thumbnail`, `zoom`, `gallery`) or a
+standard legal/price disclaimer (`skip to content/footer`, `ex-showroom`,
+`starts at INR/₹/Rs`, `*T&C`/`terms`/`conditions`), cap at **Low** regardless
+of count. **Never escalated by crawl breadth** — the repeat is one template.
 
 **Ownership boundary vs. DV-06:**  
 - DV-15 = same DOM block mechanically repeated (rendering artefact).  

@@ -59,7 +59,7 @@ The marketplace is configured via `marketplace.json` and comprises 5 distinct sk
   2. Invokes per-page checks across sub-skills in deterministic order (`DV` → `FS` → `EN` → `ED`).
   3. Enforces cross-skill cascading gates (`DV-13`/`DV-16` bot-block routing, `DV-01` empty body routing, `wikidata_backed` entity skip, `DV-03` suppressing `ED-02`).
   4. Merges findings across pages (takes worst severity, lists affected URLs).
-  5. Applies multi-page severity escalation (+1 level only when the same check ID fires on *every* audited page and ≥ 3; `low` is never escalated).
+  5. Applies multi-page severity escalation: a site-wide `medium` (every audited page, ≥ 3) is raised to `high` — but only for the metadata/identity checks that genuinely compound (`DV-02/03/09b/11/18`, `FS-01/03`, `ED-04/05`); structural findings are never escalated, and escalation can never produce `critical`.
   6. Calculates weighted overall health score (`critical`×10 + `high`×4 + `medium`×1 + `low`×0.25).
   7. Emits final JSON report matching `references/report_schema.json`.
 
@@ -85,7 +85,7 @@ The marketplace is configured via `marketplace.json` and comprises 5 distinct sk
   - `DV-11`: Root page lacking company orientation context ("what is X").
   - `DV-12`: Multi-page identical `<title>` or `meta[description]` across distinct URLs.
   - `DV-13`: Bot block / WAF challenge detected (HTTP status 403/429/503 or Cloudflare challenge).
-  - `DV-15`: Substantial DOM blocks mechanically repeated > 3 times.
+  - `DV-15`: A substantial prose block (≥ 120 chars) mechanically repeated > 5 times; gallery/disclaimer boilerplate capped at Low; never escalated by crawl breadth.
   - `DV-16`: `robots.txt` disallows crawling for target User-Agent.
   - `DV-17`: Follow-up search recommendation emitted when bot-blocked (`DV-13`/`DV-16`).
   - `DV-18`: Checks for `/llms.txt` presence at domain root (strength if present, low proactive suggestion if absent).
@@ -104,7 +104,7 @@ The marketplace is configured via `marketplace.json` and comprises 5 distinct sk
   - `FS-01`: Stale date claims (maintenance/deadline dates past system date = **High**; copyright year lag > 2 years = **Medium**).
   - `FS-02`: Internal numeric inconsistencies (conflicting claims for years of experience, client count, or employee count between `meta` and body).
   - `FS-03`: Missing freshness signals (no `article:published_time`, `article:modified_time`, or visible "last updated" text).
-  - `FS-04`: Navigation and footer listing mismatches (anchor text drift or ≥ 3 nav items absent from footer sitemap).
+  - `FS-04`: Navigation and footer listing mismatches (near-duplicate label drift, or 3–12 substantive nav items absent from the footer — a larger gap is a curated footer under a mega-menu, not a defect).
   - `FS-05`: External corroboration gap (emits `flag_only` item recommending manual spot-checking against GMB/LinkedIn unless source attribution exists).
   - `FS-06`: Self-reported wiki-style markers (regex scan for `[citation needed]`, `[dead link]`, `[dubious]`, `[disputed]`, `[needs update]`).
 
@@ -190,7 +190,7 @@ flowchart TD
     SuppressED02 --> Synth
     KeepED02 --> Synth
     
-    Synth --> Escalation[Severity Escalation: fires on ALL audited pages and ≥3 -> +1 level]
+    Synth --> Escalation[Severity Escalation: site-wide medium -> high, allowlisted metadata ids only]
     Escalation --> Score[Compute Weighted Defect Score & overall_health]
     Score --> Output([Emit Final audit_report.json])
 ```
@@ -199,7 +199,7 @@ flowchart TD
 1. **Fetch Layer Ownership**: `DV-13` owns bot blocks; `DV-16` owns `robots.txt` disallows; `DV-03` owns missing schema. `ED-02` is suppressed whenever `DV-03` fires.
 2. **Engagement Gating**: Blocked pages (`DV-13`/`DV-16`) route `EN` to `EN-12` (`not_assessed`). Empty JS-render pages (`DV-01` Critical) route `EN` to `EN-13` (`not_assessed`). `noindex` or transactional pages route `EN` to `EN-11` (`not_applicable`).
 3. **Wikidata Entity Skip**: Pages containing a valid Wikidata link set `wikidata_backed = true`, skipping all `ED` checks and logging a site strength.
-4. **Severity Escalation**: A finding that fires on *every* audited page (and ≥ 3) is escalated by +1 level (`medium` → `high` → `critical`); `low`-severity findings are never escalated.
+4. **Severity Escalation**: an allowlisted metadata/identity `medium` (`DV-02/03/09b/11/18`, `FS-01/03`, `ED-04/05`) that fires on *every* audited page (and ≥ 3) is raised to `high`. Structural/engagement findings and `low`/`high` findings are never escalated; `critical` is only ever set explicitly by a check.
 5. **Health Scoring Formula**:
    $$\text{Score} = (10 \times \text{critical}) + (4 \times \text{high}) + (1 \times \text{medium}) + (0.25 \times \text{low})$$
    - `0`: `excellent` | `1–3`: `good` | `4–9`: `fair` | `10–24`: `poor` | `≥ 25`: `critical`
@@ -338,8 +338,8 @@ on the live targets drift as those sites change; regenerate with
 | `noindex_en11.json` | synthetic `noindex` page | *(none)* | 0 / 0 | excellent | `intentionally_excluded`: DV emits no finding, EN → `EN-11`, FS and ED skipped. |
 | `hackernews.json` | `news.ycombinator.com` | `DV-03`, `DV-02`, `FS-03`, `DV-11`, `DV-20`, `ED-05`, `EN-09` | 0 / 2 | poor | Missing schema/OG tags, no freshness metadata, high boilerplate ratio, no company-orientation text. |
 | `kisansuvidha.json` | `kisansuvidha.gov.in` | `DV-01`, `DV-03`, `DV-02`, `DV-11`, `ED-04`, `FS-03` | 0 / 2 | poor | `DV-01` Critical (populated head, empty body) cascading EN → `EN-13`; ED runs because the target is the homepage. |
-| `python_org.json` | `www.python.org` | `DV-02`, `FS-01`, `DV-11`, `ED-05`, `FS-03`, `FS-04`, `EN-08`, `ED-04` | 1 / 2 | poor | Stale date claim, nav/footer drift, missing social `sameAs`, `EN-10` layered-nav strength. |
-| `wikipedia_tim.json` | `en.wikipedia.org/wiki/Tim_Berners-Lee` | `DV-02`, `EN-01`, `DV-09a`, `FS-01`, `EN-03`, `DV-15`, `FS-04`, `EN-08` | 4 / 1 | poor | `wikidata_backed` → all ED skipped (`WIKIDATA-SAMEAS` + `ED-WIKIDATA-SKIP` strengths); link-stuffing, `DV-15` capped at Low for gallery-style repeats. |
+| `python_org.json` | `www.python.org` | `DV-02`, `FS-01`, `DV-11`, `ED-05`, `FS-03`, `FS-04`, `ED-04` | 1 / 2 | poor | Stale date claim, nav/footer drift, missing social `sameAs`, `EN-10` layered-nav strength. |
+| `wikipedia_tim.json` | `en.wikipedia.org/wiki/Tim_Berners-Lee` | `DV-02`, `EN-01`, `DV-09a`, `FS-01`, `EN-03`, `FS-04` | 4 / 1 | poor | `wikidata_backed` → all ED skipped (`WIKIDATA-SAMEAS` + `ED-WIKIDATA-SKIP` strengths); link-stuffing (`DV-09a`), stale footer date. |
 
 ---
 

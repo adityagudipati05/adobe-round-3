@@ -197,6 +197,12 @@ def check_en01_en02(page_result: dict) -> list:
         r"^(\d{1,4}|[«»‹›<>]+|\.{2,3}|…|prev(ious)?|next|first|last|older|newer)$",
         re.IGNORECASE,
     )
+    # Accessibility skip-links (`<a href="#main">Skip to content</a>`) are a
+    # best practice, not broken navigation.
+    SKIP_LINK_RE = re.compile(
+        r"^skip\s+(to\s+)?(main\s+)?(content|footer|navigation|nav|search)",
+        re.IGNORECASE,
+    )
     PAGINATION_CONTAINER_RE = re.compile(r"pag(inat|er)|page-numbers|nav-links", re.I)
 
     def _in_pagination(el) -> bool:
@@ -216,8 +222,9 @@ def check_en01_en02(page_result: dict) -> list:
         for a in container.find_all("a", href=True):
             href = a["href"].strip()
             text = a.get_text(strip=True)
-            if PAGINATION_TEXT_RE.match(text) or _in_pagination(a):
-                continue  # pagination control, not a wayfinding link
+            if (PAGINATION_TEXT_RE.match(text) or _in_pagination(a)
+                    or SKIP_LINK_RE.match(text)):
+                continue  # pagination / skip-link, not a wayfinding link
             primary_links.append((href, text, "primary-nav/footer"))
 
     # Also check body links for placeholders
@@ -571,11 +578,15 @@ def check_en08(page_result: dict) -> list:
         s.find_all(attrs={"data-target": True})
     )
 
-    # Also scan for paragraph/div combos that look like stat blocks
+    # Elements that declare themselves a stat widget (class / data-attr) are the
+    # reliable bucket. Keep the id()s so the loose text-scan bucket below can be
+    # held to a stricter bar.
+    widget_ids = {id(el) for el in stat_containers}
+
+    # Loose bucket: any element whose text merely contains a stat-like word.
     for el in s.find_all(["div", "p", "span", "li"]):
-        if STAT_BLOCK_RE.search(el.get_text(strip=True)):
-            if el not in stat_containers:
-                stat_containers.append(el)
+        if STAT_BLOCK_RE.search(el.get_text(strip=True)) and el not in stat_containers:
+            stat_containers.append(el)
 
     seen = set()
     for el in stat_containers:
@@ -586,13 +597,14 @@ def check_en08(page_result: dict) -> list:
             continue
         seen.add(label_text)
 
-        # A real "stat" makes a terse quantified claim ("12,000 Downloads",
-        # "50+ Countries"). Require a stat noun AND a short label: a bare number
-        # with no noun is a UI badge (cart count, notification dot); a long
-        # sentence that merely contains the word "download" is a CTA or prose,
-        # not a counter.
+        # A real "stat" makes a terse quantified claim ("12,000 Downloads").
         has_stat_noun = bool(STAT_BLOCK_RE.search(label_text))
         if not has_stat_noun or len(label_text.split()) > 7:
+            continue
+        # The loose text-scan bucket also needs a digit somewhere in the label —
+        # otherwise "Download Brochure" / "Countries we serve" (a nav item or
+        # button) gets mistaken for a counter with a missing value.
+        if id(el) not in widget_ids and not re.search(r"\d", label_text):
             continue
 
         # Check if a number appears in the element or adjacent sibling

@@ -1,8 +1,8 @@
 {
   "site": "127.0.0.1:8898",
-  "audited_at": "2026-09-10T15:41:28.973078Z",
+  "audited_at": "2026-09-10T15:53:55.740528Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:41:28.973078Z",
+  "generated_at": "2026-09-10T15:53:55.740528Z",
   "target_url": "http://127.0.0.1:8898/internal-search",
   "pages_audited": [
     "http://127.0.0.1:8898/internal-search"

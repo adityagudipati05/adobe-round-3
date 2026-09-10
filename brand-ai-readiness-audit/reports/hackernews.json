@@ -1,8 +1,8 @@
 {
   "site": "news.ycombinator.com",
-  "audited_at": "2026-09-10T15:41:40.009982Z",
+  "audited_at": "2026-09-10T15:54:06.486897Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:41:40.009982Z",
+  "generated_at": "2026-09-10T15:54:06.486897Z",
   "target_url": "https://news.ycombinator.com/",
   "pages_audited": [
     "https://news.ycombinator.com/",
@@ -103,7 +103,7 @@
       "id": "DV-20",
       "title": "High boilerplate-to-content ratio: only 99% is primary content",
       "severity": "medium",
-      "evidence": "Page https://news.ycombinator.com/news: ~731 primary-content words out of 732 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
+      "evidence": "Page https://news.ycombinator.com/news: ~738 primary-content words out of 739 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
       "suggested_action": {
         "summary": "Wrap the primary content in a clear semantic boundary (<article> or <main>) so extraction tools can reliably isolate it from surrounding site chrome (related links, sidebars, nav, footer) \u2014 currently only ~99% of page text is primary content.",
         "priority": "medium"

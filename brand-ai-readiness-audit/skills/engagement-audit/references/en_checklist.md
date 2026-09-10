@@ -29,6 +29,10 @@ Run this **before** any of EN-01 through EN-10.
 Inspect `<a href>` in `<nav>` and `<footer>` elements. Flag links where `href` is  
 `#`, `javascript:void(0)`, `javascript:;`, or empty.
 
+**Exclusions (not broken navigation):**  
+- Accessibility **skip-links** — visible text like "Skip to content", "Skip to footer", "Skip navigation" (`<a href="#main">` is intentional).  
+- **Pagination controls** — visible text that is a page number, `«`/`»`/`‹`/`›`, `…`, or `prev`/`next`/`first`/`last`, or any link inside a `pagination`/`pager`/`page-numbers` container (these use `href="#"` + JS by design).
+
 **Ownership rule vs. EN-02:**  
 If a link is BOTH dead AND a placeholder value → file once as **EN-02** (more specific root cause).  
 EN-01 only covers dead links that are NOT placeholders.

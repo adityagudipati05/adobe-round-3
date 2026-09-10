@@ -1,8 +1,8 @@
 {
   "site": "www.python.org",
-  "audited_at": "2026-09-10T15:41:48.902480Z",
+  "audited_at": "2026-09-10T15:54:14.866106Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:41:48.902480Z",
+  "generated_at": "2026-09-10T15:54:14.866106Z",
   "target_url": "https://www.python.org/",
   "pages_audited": [
     "https://www.python.org/",
@@ -20,22 +20,22 @@
     ]
   },
   "summary": {
-    "total_findings": 8,
+    "total_findings": 7,
     "critical": 0,
     "high": 2,
     "medium": 2,
-    "low": 4,
+    "low": 3,
     "critical_findings": 0,
     "high_findings": 2,
     "medium_findings": 2,
-    "low_findings": 4,
+    "low_findings": 3,
     "total_flag_only": 2,
     "total_strengths": 1,
     "overall_health": "poor",
     "category_scores": {
       "DV": 2,
       "FS": 3,
-      "EN": 1,
+      "EN": 0,
       "ED": 2
     }
   },
@@ -57,11 +57,11 @@
     },
     {
       "id": "FS-01",
-      "title": "Stale 'copyright notice' references 2001 (9019 days ago)",
+      "title": "Stale 'date claim / banner' references 31 Dec 2001 (9019 days ago)",
       "severity": "high",
-      "evidence": "Page https://www.python.org/ contains a 'copyright notice' referencing 2001, which is 9019 days in the past. Snippet: '<span class=\"pre\">Copyright &copy;2001-2026.</span>'.",
+      "evidence": "Page https://www.python.org/ contains a 'date claim / banner' referencing 31 Dec 2001, which is 9019 days in the past. Snippet: 'Learn more Become a Member Donate to the PSF \u25b2 Back to Top About Applications Quotes Getting Started Help Downloads All releases Source code Windows m'.",
       "suggested_action": {
-        "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
+        "summary": "Remove or update the date claim / banner referencing 31 Dec 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
         "priority": "high"
       },
       "pages": [
@@ -111,26 +111,11 @@
     },
     {
       "id": "FS-04",
-      "title": "Nav lists 4 items not reflected in footer",
+      "title": "Nav lists 3 items not reflected in footer",
       "severity": "low",
-      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'skip to content', '\u25bcclose', 'python'...",
+      "evidence": "Page https://www.python.org/: navigation contains 3 substantive items absent from the footer: 'python', '\u25b2the python network', '\u25bcclose'...",
       "suggested_action": {
-        "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
-        "priority": "low"
-      },
-      "pages": [
-        "https://www.python.org/",
-        "https://www.python.org/psf/",
-        "https://www.python.org/jobs/"
-      ]
-    },
-    {
-      "id": "EN-08",
-      "title": "Stat element has no static value: 'User Group Events'",
-      "severity": "low",
-      "evidence": "Stat/counter element on https://www.python.org/ with label 'User Group Events' has no digit value in raw HTML \u2014 likely a JS count-up with no static fallback.",
-      "suggested_action": {
-        "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
+        "summary": "Reconcile nav and footer listings \u2014 nav includes 3 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
         "priority": "low"
       },
       "pages": [
@@ -190,7 +175,7 @@
       "detail": ""
     },
     {
-      "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
+      "summary": "Remove or update the date claim / banner referencing 31 Dec 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
       "priority": "high",
       "detail": ""
     },
@@ -210,12 +195,7 @@
       "detail": "FAQ content was detected on the site. Wrapping questions and answers in schema.org/FAQPage markup allows AI assistants and search engines to quote structured solutions directly in answers."
     },
     {
-      "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
-      "priority": "low",
-      "detail": ""
-    },
-    {
-      "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
+      "summary": "Reconcile nav and footer listings \u2014 nav includes 3 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
       "priority": "low",
       "detail": ""
     },

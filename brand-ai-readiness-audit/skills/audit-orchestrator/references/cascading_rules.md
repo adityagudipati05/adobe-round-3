@@ -109,9 +109,9 @@ collapses duplicate strength IDs.
 
 | Condition | Action |
 |-----------|--------|
-| Same finding ID fires on **every** audited page (and ≥ 3) | Escalate severity by one level (`medium`→`high`, `high`→`critical`). A genuine site-wide defect only — a wide crawl that merely visits many pages does **not** trigger this. |
-| Base severity is `low` | Never escalated (a low-severity nit repeated site-wide is still a nit) |
-| DV-01 fires AND page has 0 indexable words | Keep as `critical` (already set by `dv01_critical` flag) |
+| A **`medium`** finding whose id is in the escalatable set fires on **every** audited page (and ≥ 3) | Escalate to `high` (and sync `suggested_action.priority`). Escalatable ids are the metadata / identity gaps that genuinely compound when repeated site-wide: `DV-02`, `DV-03`, `DV-09b`, `DV-11`, `DV-18`, `FS-01`, `FS-03`, `ED-04`, `ED-05`. |
+| Any other finding (structural / engagement — `DV-15`, `FS-04`, `EN-05`, `EN-07`, `EN-08`, …) | **Never escalated by crawl breadth.** The repeat is one template, not new evidence. |
+| Base severity `low`, or base severity `high`/`critical` | Never escalated. `critical` is only ever set explicitly by a check (`DV-01` auto, `DV-13`, `DV-16`) — escalation can never manufacture it. |
 
 ---
 

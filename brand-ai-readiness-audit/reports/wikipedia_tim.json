@@ -1,8 +1,8 @@
 {
   "site": "en.wikipedia.org",
-  "audited_at": "2026-09-10T15:41:58.068232Z",
+  "audited_at": "2026-09-10T15:54:19.848941Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:41:58.068232Z",
+  "generated_at": "2026-09-10T15:54:19.848941Z",
   "target_url": "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
   "pages_audited": [
     "https://en.wikipedia.org/wiki/Tim_Berners-Lee"
@@ -18,22 +18,22 @@
     ]
   },
   "summary": {
-    "total_findings": 8,
+    "total_findings": 6,
     "critical": 0,
     "high": 2,
     "medium": 3,
-    "low": 3,
+    "low": 1,
     "critical_findings": 0,
     "high_findings": 2,
     "medium_findings": 3,
-    "low_findings": 3,
+    "low_findings": 1,
     "total_flag_only": 1,
     "total_strengths": 4,
     "overall_health": "poor",
     "category_scores": {
-      "DV": 3,
+      "DV": 2,
       "FS": 2,
-      "EN": 3,
+      "EN": 2,
       "ED": 0
     }
   },
@@ -104,38 +104,12 @@
       ]
     },
     {
-      "id": "DV-15",
-      "title": "Structural DOM duplication: a content block repeats 4\u00d7 in raw HTML",
-      "severity": "low",
-      "evidence": "On https://en.wikipedia.org/wiki/Tim_Berners-Lee, a content block appears verbatim 4 times in a single raw-HTML fetch. Sample: 'Contentsmove to sidebarhide(Top)1Early life2Career and researchToggle Career and research subsection'. Likely a carousel/slider shipping all clones server-side.",
-      "suggested_action": {
-        "summary": "Render each content block once in the base HTML; if a carousel needs duplicate DOM nodes for infinite-scroll, generate those client-side after initial paint \u2014 currently a block repeats verbatim 4\u00d7 in server-rendered HTML, which reads as manipulative to trust-scoring systems.",
-        "priority": "low"
-      },
-      "pages": [
-        "https://en.wikipedia.org/wiki/Tim_Berners-Lee"
-      ]
-    },
-    {
       "id": "FS-04",
       "title": "Nav/footer listing mismatch: 'wikimedia commons' vs 'wikimedia foundation, inc.' (60% similar)",
       "severity": "low",
       "evidence": "Page https://en.wikipedia.org/wiki/Tim_Berners-Lee nav contains 'wikimedia commons' but footer contains 'wikimedia foundation, inc.' (60% similar \u2014 possible typo or inconsistent naming). Total mismatched pairs: 2.",
       "suggested_action": {
         "summary": "Reconcile the nav and footer listings \u2014 nav includes 'wikimedia commons' but footer shows 'wikimedia foundation, inc.'; a typo or inconsistent name reads as outdated/inconsistent to both visitors and crawlers.",
-        "priority": "low"
-      },
-      "pages": [
-        "https://en.wikipedia.org/wiki/Tim_Berners-Lee"
-      ]
-    },
-    {
-      "id": "EN-08",
-      "title": "Stat element has no static value: 'Download as PDFPrintable version'",
-      "severity": "low",
-      "evidence": "Stat/counter element on https://en.wikipedia.org/wiki/Tim_Berners-Lee with label 'Download as PDFPrintable version' has no digit value in raw HTML \u2014 likely a JS count-up with no static fallback.",
-      "suggested_action": {
-        "summary": "Provide a real static fallback value in the HTML for 'Download as PDFPrintable version' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
         "priority": "low"
       },
       "pages": [
@@ -209,17 +183,7 @@
       "detail": "Strong corporate identity facts exist on-page but lack structured Organization markup. Adding schema.org/Organization provides an unambiguous anchor for AI assistants without name-collision ambiguity."
     },
     {
-      "summary": "Render each content block once in the base HTML; if a carousel needs duplicate DOM nodes for infinite-scroll, generate those client-side after initial paint \u2014 currently a block repeats verbatim 4\u00d7 in server-rendered HTML, which reads as manipulative to trust-scoring systems.",
-      "priority": "low",
-      "detail": ""
-    },
-    {
       "summary": "Reconcile the nav and footer listings \u2014 nav includes 'wikimedia commons' but footer shows 'wikimedia foundation, inc.'; a typo or inconsistent name reads as outdated/inconsistent to both visitors and crawlers.",
-      "priority": "low",
-      "detail": ""
-    },
-    {
-      "summary": "Provide a real static fallback value in the HTML for 'Download as PDFPrintable version' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
       "priority": "low",
       "detail": ""
     },

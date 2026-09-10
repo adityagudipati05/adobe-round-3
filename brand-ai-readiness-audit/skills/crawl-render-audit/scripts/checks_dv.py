@@ -922,30 +922,37 @@ def check_dv15(page_result: dict) -> Optional[dict]:
     hash_map: dict = {}
 
     for el in s.find_all(["div", "section", "article", "li"]):
-        text = el.get_text(strip=True)
-        if len(text) < 80:
+        text = el.get_text(" ", strip=True)
+        # Require a substantial block of real prose — short repeated strings are
+        # nav items, chips, price disclaimers, "Book a test drive" CTAs, etc.
+        if len(text) < 120:
             continue
         norm = re.sub(r"\s+", " ", text)
         h = hashlib.md5(norm.encode("utf-8", errors="replace")).hexdigest()
-        hash_map.setdefault(h, []).append(norm[:120])
+        hash_map.setdefault(h, []).append(norm[:160])
 
-    repeated = {h: items for h, items in hash_map.items() if len(items) > 3}
+    repeated = {h: items for h, items in hash_map.items() if len(items) > 5}
     if not repeated:
         return None
 
-    worst_count = max(len(v) for v in repeated.values())
-    worst_sample = next(iter(repeated.values()))[0]
+    # Report on the most-repeated block specifically.
+    worst_group = max(repeated.values(), key=len)
+    worst_count = len(worst_group)
+    worst_sample = worst_group[0]
 
-    # Image galleries / media carousels legitimately clone one caption block per
-    # slide; that is a minor extraction nuisance, not a manipulation signal.
-    GALLERY_UI_RE = re.compile(
+    # Boilerplate that is legitimately repeated per card/slide: image-gallery
+    # captions, and standard legal/price disclaimers ("Range starts at INR …",
+    # "ex-showroom", "*T&C apply", skip-links). Cap those at Low.
+    BOILERPLATE_UI_RE = re.compile(
         r"(image\s+\d+\s+of|view\s+all|hero\s+image|\bslide\b|thumbnail"
-        r"|next\s+image|previous\s+image|zoom|gallery)",
+        r"|next\s+image|previous\s+image|zoom|gallery"
+        r"|skip\s+to\s+(main|footer|content)|ex-?showroom|starts?\s+at\s+(inr|₹|rs)"
+        r"|\*.*(t&?c|terms|conditions)|price\s+disclaimer)",
         re.IGNORECASE,
     )
-    is_gallery = bool(GALLERY_UI_RE.search(worst_sample))
+    is_boilerplate = bool(BOILERPLATE_UI_RE.search(worst_sample))
 
-    if is_gallery:
+    if is_boilerplate:
         severity = "low"
     else:
         severity = "high" if worst_count > 20 else "medium" if worst_count > 10 else "low"

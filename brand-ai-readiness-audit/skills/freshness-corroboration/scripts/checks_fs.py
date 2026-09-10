@@ -258,20 +258,33 @@ def check_fs01(page_result: dict, current_date: date = None) -> list:
     findings = []
     seen_dates = set()
 
-    # Also scan raw HTML for structured date contexts (footer copyright, banners)
+    # Scan raw HTML for structured date contexts (footer copyright, banners) —
+    # but strip <script>/<style> first so bundled-library licence headers
+    # ("Copyright © 2012-2021 Faisal Salman", jQuery, etc.) are not mistaken
+    # for the site's own copyright.
     raw = page_result.get("raw_html", "") or ""
+    s = _soup(page_result)
+    if s:
+        for bad in s(["script", "style", "template", "noscript"]):
+            bad.decompose()
+        raw_visible = s.get_text(" ", strip=True)
+    else:
+        raw_visible = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", raw,
+                             flags=re.IGNORECASE | re.DOTALL)
 
-    # Combine body + raw for scanning (raw catches copyright in footer)
-    combined = body_text + " " + raw[:10000]
-
+    combined = body_text + " " + raw_visible[:10000]
     dated_claims = _extract_sentences_with_dates(combined)
 
-    # Also look for isolated copyright year patterns even without full sentence context
-    for m in re.finditer(r"(?:©|&copy;|\(c\)|copyright)\s*(20\d{2})", raw, re.IGNORECASE):
+    # Isolated copyright year patterns. A year RANGE ("© 2012-2021") is current
+    # as of its LATEST year — use that, not the first.
+    for m in re.finditer(
+        r"(?:©|&copy;|\(c\)|copyright)\s*(20\d{2})(?:\s*[-–—]\s*(20\d{2}))?",
+        raw_visible, re.IGNORECASE,
+    ):
         try:
-            yr = int(m.group(1))
+            yr = int(m.group(2) or m.group(1))
             d = date(yr, 12, 31)
-            snippet = raw[max(0, m.start()-30):m.end()+30].strip()
+            snippet = raw_visible[max(0, m.start()-30):m.end()+30].strip()
             dated_claims.append((snippet, d))
         except ValueError:
             pass
@@ -484,12 +497,17 @@ def check_fs04(page_result: dict) -> list:
     nav_only = nav_items - footer_items
     footer_only = footer_items - nav_items
 
-    # Filter to substantive items (exclude generic nav words: home, contact, login, etc.)
+    # Filter to substantive items (exclude generic nav words + a11y skip-links)
     GENERIC_NAV = {"home", "contact", "about", "login", "register", "sign in",
                    "sign up", "menu", "back", "top", "search", "cart", "blog",
-                   "faq", "help", "privacy", "terms", "sitemap", "newsletter"}
-    nav_only_filtered = {i for i in nav_only if i not in GENERIC_NAV and len(i) > 4}
-    footer_only_filtered = {i for i in footer_only if i not in GENERIC_NAV and len(i) > 4}
+                   "faq", "help", "privacy", "terms", "sitemap", "newsletter",
+                   "skip to content", "skip to main content", "skip to footer",
+                   "skip navigation", "skip to navigation"}
+    def _substantive(i: str) -> bool:
+        return (i not in GENERIC_NAV and len(i) > 4
+                and not i.startswith("skip to") and not i.startswith("skip navigation"))
+    nav_only_filtered = {i for i in nav_only if _substantive(i)}
+    footer_only_filtered = {i for i in footer_only if _substantive(i)}
 
     # Find pairs that are similar but not identical (possible typos or name changes)
     mismatched_pairs = []
@@ -514,8 +532,10 @@ def check_fs04(page_result: dict) -> list:
             "low",
         ))
 
-    # Large discrepancy in item count (nav has many more items than footer, or vice-versa)
-    if len(nav_only_filtered) >= 3:
+    # A footer that omits a handful of nav sections reads as stale. A footer that
+    # omits *dozens* is just a curated footer under a mega-menu — not a defect,
+    # so cap the upper bound.
+    if 3 <= len(nav_only_filtered) <= 12:
         examples = list(nav_only_filtered)[:3]
         findings.append(_make_finding(
             "FS-04",
