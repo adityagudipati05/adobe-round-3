@@ -142,23 +142,42 @@ def _is_bot_blocked(response: requests.Response) -> bool:
             return bool(BOT_BLOCK_BODY_RE.search(body_snippet))
         return True
 
-    # Suspicious response headers
+    # Suspicious response headers — record whether a known WAF/challenge
+    # signature header is present. Header presence ALONE is not enough (many
+    # CDNs set these on ordinary 200s), so this only reinforces a body match.
     lower_headers = {k.lower() for k in response.headers.keys()}
-    for sig in BOT_BLOCK_RESPONSE_HEADERS:
-        if sig in lower_headers and response.status_code in {200, 403}:
-            # Header alone is not enough; check body too
-            break
+    has_bot_block_header = any(
+        sig in lower_headers for sig in BOT_BLOCK_RESPONSE_HEADERS
+    )
 
-    # Body patterns (check first 4000 chars for speed)
+    # Body patterns (check first 4000 chars for speed).
+    # Real WAF/CDN JS-challenge pages (Cloudflare "Checking your browser",
+    # Akamai, Sucuri) are commonly served with HTTP 200 rather than 403/503,
+    # so a 200 status must NOT be hard-excluded here. The body regex is what
+    # keeps this specific — a genuine page merely mentioning "captcha" in prose
+    # without matching the fuller challenge-page pattern still passes through.
     body_snippet = response.text[:4000].lower()
-    return bool(BOT_BLOCK_BODY_RE.search(body_snippet)
-                and response.status_code != 200)
+    body_match = bool(BOT_BLOCK_BODY_RE.search(body_snippet))
+
+    # Flag when the body looks like a challenge page (any status), or when a
+    # bot-block signature header co-occurs with a body match. A signature
+    # header with no body match is not sufficient on its own.
+    return body_match or (has_bot_block_header and body_match)
 
 
 def _extract_internal_links(soup: BeautifulSoup, base_url: str) -> list:
-    """Return de-duplicated list of absolute internal hrefs."""
+    """
+    Return a de-duplicated list of absolute internal hrefs in first-seen
+    DOM order.
+
+    Order stability matters: the orchestrator crawls only the first
+    `max_pages` discovered links, so a `set`-based return (subject to per-process
+    string hash randomization) could crawl a different subset run-to-run for
+    identical content. De-dup order-stably instead.
+    """
     parsed_base = urllib.parse.urlparse(base_url)
-    links = set()
+    seen = set()
+    ordered = []
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         if not href or href.startswith(("javascript:", "mailto:", "tel:", "#")):
@@ -167,8 +186,11 @@ def _extract_internal_links(soup: BeautifulSoup, base_url: str) -> list:
         abs_parsed = urllib.parse.urlparse(abs_href)
         # Same host only; strip fragment
         if abs_parsed.netloc == parsed_base.netloc:
-            links.add(urllib.parse.urlunparse(abs_parsed._replace(fragment="")))
-    return list(links)
+            clean = urllib.parse.urlunparse(abs_parsed._replace(fragment=""))
+            if clean not in seen:
+                seen.add(clean)
+                ordered.append(clean)
+    return ordered
 
 
 def _extract_ldjson(soup: BeautifulSoup) -> list:

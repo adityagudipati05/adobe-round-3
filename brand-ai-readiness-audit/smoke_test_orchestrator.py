@@ -353,6 +353,79 @@ check("audit_config.skills_run non-empty",
       len(r8["audit_config"]["skills_run"]) == 4)
 
 
+# ── Test 9: Proactive suggestions are wired through run_audit ────────────────
+# Regression: _audit_page() returned no "page_result" key, so
+# _build_proactive_suggestions() always saw an empty body and never scanned
+# JSON-LD — suggestions #1-#4 could never fire (only #5, /llms.txt, worked).
+print("\n=== Test 9: Proactive suggestions fire through run_audit ===")
+
+faq_org_body = (
+    "Frequently Asked Questions about Acme. Acme was Founded in 2015 and is "
+    "headquartered in Berlin. We provide analytics tooling for enterprise teams. "
+    * 5
+)
+proactive_page = make_page(
+    url="https://proactive.example.com/",
+    title="Acme | FAQ and Company",
+    og_title="Acme",
+    description="Acme analytics — FAQ and company facts.",
+    body=faq_org_body,
+    ldjson=[],  # no FAQPage schema, no Organization schema
+)
+r9 = audit_with({"https://proactive.example.com/": proactive_page})
+sugg9 = " || ".join(a.get("summary", "") for a in r9.get("suggested_actions", []))
+finding_ids9 = {f["id"] for f in r9["findings"]}
+check("Test 9: DV-03 fires (no schema) so ED-02 is suppressed",
+      "DV-03" in finding_ids9 and "ED-02" not in finding_ids9)
+check("Test 9: proactive #1 (FAQPage schema) present in suggested_actions",
+      "FAQPage JSON-LD" in sugg9)
+check("Test 9: proactive #2 (Organization schema) present in suggested_actions",
+      "schema.org/Organization JSON-LD" in sugg9)
+
+# The internal page_result copy must NOT leak into the report (verbose off/on)
+check("Test 9: no 'page_result' key leaked into report", "page_result" not in r9)
+r9v = None
+try:
+    orch.fetch_page = lambda url, timeout=30: proactive_page
+    r9v = orch.run_audit("https://proactive.example.com/", max_pages=1, verbose=True)
+finally:
+    orch.fetch_page = _ORIGINAL_FETCH
+check("Test 9: verbose raw_per_page entries carry no 'page_result'",
+      bool(r9v) and all("page_result" not in ppr for ppr in r9v.get("raw_per_page", [])))
+
+
+# ── Test 10: Crawl queue skips assets & de-prioritises transactional URLs ────
+# Regression: every same-host href was queued, so .pdf/.jpg/.css assets and
+# cart/checkout/login URLs could consume the max_pages crawl budget instead of
+# real content pages.
+print("\n=== Test 10: Crawl queue filters non-content links ===")
+
+filter_home = make_page(
+    url="https://filter.example.com/",
+    title="Filter Corp | Home",
+    og_title="Filter Corp",
+    description="Filter Corp does things.",
+    body="Filter Corp builds widgets for enterprise customers. " * 10,
+)
+filter_home["internal_links"] = [
+    "https://filter.example.com/whitepaper.pdf",  # binary asset — never queue
+    "https://filter.example.com/cart",            # transactional — de-prioritise
+    "https://filter.example.com/about",           # genuine content
+    "https://filter.example.com/services",        # genuine content
+]
+r10 = audit_with({"https://filter.example.com/": filter_home}, max_pages=3)
+audited10 = r10["pages_audited"]
+check("Test 10: homepage audited", "https://filter.example.com/" in audited10)
+check("Test 10: content page /about queued",
+      "https://filter.example.com/about" in audited10)
+check("Test 10: content page /services queued",
+      "https://filter.example.com/services" in audited10)
+check("Test 10: PDF asset NOT queued",
+      "https://filter.example.com/whitepaper.pdf" not in audited10)
+check("Test 10: transactional /cart NOT queued (content filled the budget)",
+      "https://filter.example.com/cart" not in audited10)
+
+
 # ── Final result ──────────────────────────────────────────────────────────────
 print("\n" + "=" * 55)
 if errors:

@@ -52,13 +52,23 @@ for _skill in ["crawl-render-audit", "freshness-corroboration",
 
 # ── Import skill modules ───────────────────────────────────────────────────────
 from fetch_page import fetch_page          # noqa: E402
-from checks_dv  import run_dv_checks       # noqa: E402
+from checks_dv  import run_dv_checks, TRANSACTIONAL_URL_RE  # noqa: E402
 from checks_fs  import run_fs_checks       # noqa: E402
 from checks_en  import run_en_checks       # noqa: E402
 from checks_ed  import run_ed_checks       # noqa: E402
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 SCHEMA_VERSION = "1.0.0"
+
+# Non-HTML file extensions that must never consume crawl budget. A discovered
+# same-host link whose path ends in one of these is a binary/static asset, not
+# a content page.
+NON_CONTENT_EXTENSIONS: frozenset = frozenset({
+    ".pdf", ".jpg", ".jpeg", ".png", ".gif", ".svg", ".webp",
+    ".css", ".js", ".woff", ".woff2", ".zip", ".mp4", ".mp3",
+    ".ico", ".xml",
+})
+
 SEVERITY_WEIGHT = {"critical": 10, "high": 4, "medium": 1, "low": 0.25}
 SEVERITY_ORDER  = ["critical", "high", "medium", "low"]
 SKILL_ORDER     = ["DV", "FS", "EN", "ED"]
@@ -70,6 +80,44 @@ def _health_label(score: float) -> str:
     if score < 10:       return "fair"
     if score < 25:       return "poor"
     return "critical"
+
+# ── Crawl-queue policy ────────────────────────────────────────────────────────
+
+def _has_non_content_extension(link: str) -> bool:
+    """True if the URL path ends in a known non-HTML file extension."""
+    path = urllib.parse.urlparse(link).path.lower()
+    _, ext = os.path.splitext(path)
+    return ext in NON_CONTENT_EXTENSIONS
+
+
+def _select_crawl_candidates(internal_links: List[str],
+                             already_queued: List[str]) -> List[str]:
+    """
+    Turn raw same-host internal links into an ordered crawl-queue candidate list.
+
+    Policy (orchestrator concern, deliberately NOT baked into the general-purpose
+    link extractor in fetch_page.py):
+      * Drop links to binary/static assets (.pdf, .jpg, .css, .js, ...): they
+        can never be audited as content pages.
+      * De-prioritise transactional/utility URLs (cart, checkout, login, search,
+        account, ...) — they are correctly thin and waste crawl budget — but do
+        NOT hard-exclude them, so a tiny site that has nothing else still gets
+        crawled.
+    """
+    queued = set(already_queued)
+    preferred: List[str] = []
+    deprioritized: List[str] = []
+    for lnk in internal_links:
+        if lnk in queued:
+            continue
+        if _has_non_content_extension(lnk):
+            continue
+        if TRANSACTIONAL_URL_RE.search(lnk):
+            deprioritized.append(lnk)
+        else:
+            preferred.append(lnk)
+    return preferred + deprioritized
+
 
 # ── Cascading rule helpers ────────────────────────────────────────────────────
 
@@ -153,7 +201,14 @@ def _audit_page(url: str, page_result: dict, verbose: bool = False) -> dict:
     if _dv03_fired(dv_findings):
         ed["findings"] = [f for f in ed.get("findings", []) if f.get("id") != "ED-02"]
 
-    return {"url": url, "dv": dv, "fs": fs, "en": en, "ed": ed}
+    # Retain a slim copy of the raw page_result so _build_proactive_suggestions
+    # can scan body text and JSON-LD blocks. This key is orchestrator-internal
+    # ONLY — run_audit() strips it before the report is composed, so it never
+    # reaches the final JSON (and raw_html is dropped here to avoid any bloat).
+    slim_page_result = {k: v for k, v in page_result.items() if k != "raw_html"}
+
+    return {"url": url, "dv": dv, "fs": fs, "en": en, "ed": ed,
+            "page_result": slim_page_result}
 
 
 # ── Aggregation helpers ────────────────────────────────────────────────────────
@@ -257,6 +312,32 @@ def _merge_strengths(per_page_results: List[dict]) -> List[dict]:
     return out
 
 
+def _ldjson_types(blocks) -> List[str]:
+    """
+    Collect every schema.org @type (as a string) from a list of JSON-LD blocks.
+
+    fetch_page.py returns ldjson_blocks as raw JSON *strings*, so each block is
+    parsed here; malformed blocks are skipped. A block may be a dict or a list
+    of dicts, and @type may itself be a string or a list.
+    """
+    found: List[str] = []
+    for raw in blocks or []:
+        try:
+            obj = json.loads(raw) if isinstance(raw, str) else raw
+        except (json.JSONDecodeError, TypeError, ValueError):
+            continue
+        items = obj if isinstance(obj, list) else [obj]
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            t = item.get("@type")
+            if isinstance(t, str):
+                found.append(t)
+            elif isinstance(t, list):
+                found.extend(str(x) for x in t)
+    return found
+
+
 def _build_proactive_suggestions(per_page_results: List[dict], findings: List[dict]) -> List[dict]:
     """
     Generate beyond-defect proactive suggestions per taxonomy doc:
@@ -271,17 +352,16 @@ def _build_proactive_suggestions(per_page_results: List[dict], findings: List[di
 
     combined_body = " ".join((p.get("page_result", {}).get("body_text", "") or "").lower() for p in per_page_results)
 
+    # All schema.org @type values across every page's JSON-LD, parsed once.
+    all_ldjson_types = []
+    for p in per_page_results:
+        all_ldjson_types.extend(
+            _ldjson_types(p.get("page_result", {}).get("ldjson_blocks", []))
+        )
+
     # 1. FAQ exists, no FAQPage schema
     has_faq_content = any(k in combined_body for k in ["faq", "frequently asked questions", "q&a", "questions & answers"])
-    has_faq_schema = False
-    for p in per_page_results:
-        for blk in p.get("page_result", {}).get("ldjson_blocks", []):
-            types = blk.get("@type", [])
-            if isinstance(types, str):
-                types = [types]
-            if any("FAQPage" in str(t) for t in types):
-                has_faq_schema = True
-                break
+    has_faq_schema = any("FAQPage" in t for t in all_ldjson_types)
     if has_faq_content and not has_faq_schema:
         proactive.append({
             "summary": "Add FAQPage JSON-LD schema to pages containing Q&A content.",
@@ -291,15 +371,10 @@ def _build_proactive_suggestions(per_page_results: List[dict], findings: List[di
 
     # 2. Strong identity facts exist, no Organization schema, no collision risk
     has_identity_facts = any(k in combined_body for k in ["founded in", "established in", "registration number", "cin", "corporate headquarters", "headquartered in"])
-    has_org_schema = False
-    for p in per_page_results:
-        for blk in p.get("page_result", {}).get("ldjson_blocks", []):
-            types = blk.get("@type", [])
-            if isinstance(types, str):
-                types = [types]
-            if any(t in ["Organization", "Corporation", "LocalBusiness", "EducationalOrganization"] for t in types):
-                has_org_schema = True
-                break
+    has_org_schema = any(
+        t in ["Organization", "Corporation", "LocalBusiness", "EducationalOrganization"]
+        for t in all_ldjson_types
+    )
     if has_identity_facts and not has_org_schema and "ED-02" not in finding_ids:
         proactive.append({
             "summary": "Add schema.org/Organization JSON-LD markup with official identifier and founding details.",
@@ -309,15 +384,9 @@ def _build_proactive_suggestions(per_page_results: List[dict], findings: List[di
 
     # 3. Testimonials exist but no Review schema
     has_testimonials = any(k in combined_body for k in ["testimonials", "what our customers say", "client feedback", "reviews", "customer stories"])
-    has_review_schema = False
-    for p in per_page_results:
-        for blk in p.get("page_result", {}).get("ldjson_blocks", []):
-            types = blk.get("@type", [])
-            if isinstance(types, str):
-                types = [types]
-            if any(t in ["Review", "CriticReview", "AggregateRating"] for t in types):
-                has_review_schema = True
-                break
+    has_review_schema = any(
+        t in ["Review", "CriticReview", "AggregateRating"] for t in all_ldjson_types
+    )
     if has_testimonials and not has_review_schema and "DV-07" not in finding_ids:
         proactive.append({
             "summary": "Add schema.org/Review or AggregateRating markup to customer testimonials.",
@@ -492,7 +561,7 @@ def run_audit(url: str,
         # If this is the homepage, discover internal links for subsequent pages
         if i == 0 and max_pages > 1:
             links = page_result.get("internal_links", [])
-            for lnk in links:
+            for lnk in _select_crawl_candidates(links, pages_to_audit):
                 if lnk not in pages_to_audit and len(pages_to_audit) < max_pages:
                     pages_to_audit.append(lnk)
 
@@ -531,7 +600,12 @@ def run_audit(url: str,
     }
 
     if verbose:
-        report["raw_per_page"] = per_page_results
+        # Drop the orchestrator-internal 'page_result' copy so it never leaks
+        # into the serialized report.
+        report["raw_per_page"] = [
+            {k: v for k, v in ppr.items() if k != "page_result"}
+            for ppr in per_page_results
+        ]
 
     elapsed = round(time.time() - started, 1)
     print(f"[audit] Done in {elapsed}s — {summary['total_findings']} findings, "

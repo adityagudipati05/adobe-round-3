@@ -38,7 +38,8 @@ TEST_FILES = [
     "smoke_test_en.py",
     "smoke_test_ed.py",
     "smoke_test_orchestrator.py",
-    "test_dv_checks_stdlib.py"
+    "test_dv_checks_stdlib.py",
+    "test_fetch_page_stdlib.py"
 ]
 
 SKILL_FOLDERS = [
