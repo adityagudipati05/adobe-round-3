@@ -286,12 +286,13 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
         finding["pages"] = affected
         base_sev = finding.get("severity", "low")
         site_wide = len(affected) >= 3 and len(affected) == total_pages
-        if site_wide and base_sev in ("high", "medium"):
-            new_sev = _escalate_severity(base_sev)
-            finding["severity"] = new_sev
-            # Keep the suggested action's priority in step with the escalation.
+        # Escalate a genuinely site-wide MEDIUM to HIGH. `critical` is reserved
+        # for what a check explicitly sets critical (DV-01 auto, DV-13, DV-16) —
+        # crawl breadth alone must never manufacture a `critical`.
+        if site_wide and base_sev == "medium":
+            finding["severity"] = "high"
             if isinstance(finding.get("suggested_action"), dict):
-                finding["suggested_action"]["priority"] = new_sev
+                finding["suggested_action"]["priority"] = "high"
         merged.append(finding)
 
     # Sort: severity first, then skill order
@@ -307,18 +308,24 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
 
 def _merge_flag_only(per_page_results: List[dict]) -> List[dict]:
     """
-    Flag-only items are NOT deduplicated (each page may need independent lookup).
-    Each item gets a 'pages' field added.
+    Collapse flag-only items by id: one entry per check, carrying the full list
+    of pages it was raised on. The recommendation text is page-independent (it
+    is a "go check this manually" note), so emitting five near-identical copies
+    of FS-05 / EN-06 across a crawl is pure noise.
     """
-    items = []
+    by_id: Dict[str, dict] = {}
     for ppr in per_page_results:
         url = ppr["url"]
         for skill_key in ["dv", "fs", "en", "ed"]:
             for fo in ppr.get(skill_key, {}).get("flag_only_items", []):
-                item = dict(fo)
-                item["pages"] = [url]
-                items.append(item)
-    return items
+                fid = fo.get("id", "?")
+                if fid not in by_id:
+                    item = dict(fo)
+                    item["pages"] = [url]
+                    by_id[fid] = item
+                elif url not in by_id[fid]["pages"]:
+                    by_id[fid]["pages"].append(url)
+    return list(by_id.values())
 
 
 def _merge_strengths(per_page_results: List[dict]) -> List[dict]:

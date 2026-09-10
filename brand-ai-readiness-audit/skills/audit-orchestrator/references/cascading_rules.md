@@ -93,8 +93,10 @@ check: if DV-03 is in `dv_result["findings"]`, suppress ED-02 even if it fires.
 When the same check ID fires on multiple pages:
 - **Merge into a single finding**: take the worst-severity instance; list all
   affected page URLs in the `pages` array.
-- Exception: flag_only items are NOT deduplicated (each page may need
-  independent external lookup).
+- **flag_only items are also merged by id** — one entry per check carrying the
+  full `pages` list. Their recommendation text is page-independent (a
+  "verify this manually" note), so five near-identical copies of FS-05 / EN-06
+  across a crawl is noise, not signal.
 
 ### 3c. Strength deduplication
 

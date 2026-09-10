@@ -1,8 +1,8 @@
 {
   "site": "news.ycombinator.com",
-  "audited_at": "2026-09-10T15:27:28.207554Z",
+  "audited_at": "2026-09-10T15:41:40.009982Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:27:28.207554Z",
+  "generated_at": "2026-09-10T15:41:40.009982Z",
   "target_url": "https://news.ycombinator.com/",
   "pages_audited": [
     "https://news.ycombinator.com/",
@@ -21,17 +21,17 @@
   },
   "summary": {
     "total_findings": 7,
-    "critical": 2,
-    "high": 1,
+    "critical": 1,
+    "high": 2,
     "medium": 3,
     "low": 1,
-    "critical_findings": 2,
-    "high_findings": 1,
+    "critical_findings": 1,
+    "high_findings": 2,
     "medium_findings": 3,
     "low_findings": 1,
-    "total_flag_only": 6,
+    "total_flag_only": 2,
     "total_strengths": 0,
-    "overall_health": "critical",
+    "overall_health": "poor",
     "category_scores": {
       "DV": 4,
       "FS": 1,
@@ -41,12 +41,12 @@
   },
   "findings": [
     {
-      "id": "DV-02",
-      "title": "Missing/empty head tags: meta[description], og:title, og:description, og:image, twitter:title, twitter:description",
+      "id": "DV-03",
+      "title": "No valid JSON-LD structured data (Organization expected)",
       "severity": "critical",
-      "evidence": "Page https://news.ycombinator.com/ is missing these <head> fields (absent or empty): meta[description], og:title, og:description, og:image, twitter:title, twitter:description.",
+      "evidence": "Raw HTML of https://news.ycombinator.com/ contains 0 JSON-LD script block(s), none of which parsed as a valid schema.org object.",
       "suggested_action": {
-        "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+        "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
         "priority": "critical"
       },
       "pages": [
@@ -56,13 +56,13 @@
       ]
     },
     {
-      "id": "DV-03",
-      "title": "No valid JSON-LD structured data (Organization expected)",
-      "severity": "critical",
-      "evidence": "Raw HTML of https://news.ycombinator.com/ contains 0 JSON-LD script block(s), none of which parsed as a valid schema.org object.",
+      "id": "DV-02",
+      "title": "Missing/empty head tags: meta[description], og:title, og:description, og:image, twitter:title, twitter:description",
+      "severity": "high",
+      "evidence": "Page https://news.ycombinator.com/ is missing these <head> fields (absent or empty): meta[description], og:title, og:description, og:image, twitter:title, twitter:description.",
       "suggested_action": {
-        "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
-        "priority": "critical"
+        "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+        "priority": "high"
       },
       "pages": [
         "https://news.ycombinator.com/",
@@ -103,7 +103,7 @@
       "id": "DV-20",
       "title": "High boilerplate-to-content ratio: only 99% is primary content",
       "severity": "medium",
-      "evidence": "Page https://news.ycombinator.com/news: ~724 primary-content words out of 725 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
+      "evidence": "Page https://news.ycombinator.com/news: ~731 primary-content words out of 732 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
       "suggested_action": {
         "summary": "Wrap the primary content in a clear semantic boundary (<article> or <main>) so extraction tools can reliably isolate it from surrounding site chrome (related links, sidebars, nav, footer) \u2014 currently only ~99% of page text is primary content.",
         "priority": "medium"
@@ -127,18 +127,17 @@
       ]
     },
     {
-      "id": "EN-08",
-      "title": "Stat element has no static value: 'Movie Review: Musk(variety.com)'",
+      "id": "EN-09",
+      "title": "No trust content (testimonials, reviews, case studies) on key page",
       "severity": "low",
-      "evidence": "Stat/counter element on https://news.ycombinator.com/ with label 'Movie Review: Musk(variety.com)' has no digit value in raw HTML \u2014 likely a JS count-up with no static fallback.",
+      "evidence": "Page https://news.ycombinator.com/ has no testimonials, reviews, client quotes, or case-study snippets \u2014 only logos/brand names at most.",
       "suggested_action": {
-        "summary": "Provide a real static fallback value in the HTML for 'Movie Review: Musk(variety.com)' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
+        "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
         "priority": "low"
       },
       "pages": [
         "https://news.ycombinator.com/",
-        "https://news.ycombinator.com",
-        "https://news.ycombinator.com/news"
+        "https://news.ycombinator.com"
       ]
     }
   ],
@@ -149,7 +148,9 @@
       "reason": "Facts on https://news.ycombinator.com/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
       "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
       "pages": [
-        "https://news.ycombinator.com/"
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com",
+        "https://news.ycombinator.com/news"
       ]
     },
     {
@@ -158,42 +159,8 @@
       "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
       "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
       "pages": [
-        "https://news.ycombinator.com/"
-      ]
-    },
-    {
-      "id": "FS-05",
-      "type": "flag_only",
-      "reason": "Facts on https://news.ycombinator.com should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
-      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
-      "pages": [
-        "https://news.ycombinator.com"
-      ]
-    },
-    {
-      "id": "EN-06",
-      "type": "flag_only",
-      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
-      "pages": [
-        "https://news.ycombinator.com"
-      ]
-    },
-    {
-      "id": "FS-05",
-      "type": "flag_only",
-      "reason": "Facts on https://news.ycombinator.com/news should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
-      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
-      "pages": [
-        "https://news.ycombinator.com/news"
-      ]
-    },
-    {
-      "id": "EN-06",
-      "type": "flag_only",
-      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com/news. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
-      "pages": [
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com",
         "https://news.ycombinator.com/news"
       ]
     }
@@ -201,13 +168,13 @@
   "strengths": [],
   "suggested_actions": [
     {
-      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+      "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
       "priority": "critical",
       "detail": ""
     },
     {
-      "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
-      "priority": "critical",
+      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+      "priority": "high",
       "detail": ""
     },
     {
@@ -236,7 +203,7 @@
       "detail": "FAQ content was detected on the site. Wrapping questions and answers in schema.org/FAQPage markup allows AI assistants and search engines to quote structured solutions directly in answers."
     },
     {
-      "summary": "Provide a real static fallback value in the HTML for 'Movie Review: Musk(variety.com)' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
+      "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
       "priority": "low",
       "detail": ""
     },

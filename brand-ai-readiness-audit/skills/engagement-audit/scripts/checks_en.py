@@ -191,12 +191,33 @@ def check_en01_en02(page_result: dict) -> list:
     url = _page_url(page_result)
     findings = []
 
+    # Pagination controls legitimately use href="#" + JS; their visible text is
+    # a page number or a prev/next glyph. They are not broken wayfinding links.
+    PAGINATION_TEXT_RE = re.compile(
+        r"^(\d{1,4}|[«»‹›<>]+|\.{2,3}|…|prev(ious)?|next|first|last|older|newer)$",
+        re.IGNORECASE,
+    )
+    PAGINATION_CONTAINER_RE = re.compile(r"pag(inat|er)|page-numbers|nav-links", re.I)
+
+    def _in_pagination(el) -> bool:
+        p = el
+        for _ in range(4):
+            p = p.parent
+            if p is None or not getattr(p, "get", None):
+                break
+            cls = " ".join(p.get("class", []) or [])
+            if PAGINATION_CONTAINER_RE.search(cls) or PAGINATION_CONTAINER_RE.search(p.get("aria-label", "") or ""):
+                return True
+        return False
+
     # Collect links from primary nav + footer
     primary_links = []
     for container in s.find_all(["nav", "footer"]):
         for a in container.find_all("a", href=True):
             href = a["href"].strip()
             text = a.get_text(strip=True)
+            if PAGINATION_TEXT_RE.match(text) or _in_pagination(a):
+                continue  # pagination control, not a wayfinding link
             primary_links.append((href, text, "primary-nav/footer"))
 
     # Also check body links for placeholders
@@ -383,18 +404,29 @@ def check_en05(page_result: dict) -> Optional[dict]:
 
     url = _page_url(page_result)
 
-    # Detect tab/accordion containers with labels but no visible content
-    TAB_CONTAINER_RE = re.compile(r"\b(tab|accordion|toggle|panel|collapse)\b", re.I)
-    tab_containers = s.find_all(class_=TAB_CONTAINER_RE)
+    # Real tabbed/accordion CONTENT — not every element that merely has a class
+    # containing "toggle"/"panel"/"collapse" (mobile-nav buttons, cookie panels,
+    # dropdown menus all match that). Require a genuine tab/accordion class or an
+    # ARIA tab role / aria-controls relationship.
+    TAB_CONTAINER_RE = re.compile(r"\b(tab-pane|tab-content|tabpanel|accordion(-item)?)\b", re.I)
+    candidates = (
+        s.find_all(class_=TAB_CONTAINER_RE)
+        + s.find_all(attrs={"role": re.compile(r"^tab(panel)?$", re.I)})
+        + s.find_all(attrs={"aria-controls": True})
+    )
 
     hidden_tabs = []
-    for container in tab_containers:
-        # Check for a label/heading but essentially empty text content
-        label = container.find(["h2", "h3", "h4", "button", "a",
-                                 "li", "span"])
+    seen_ids = set()
+    for container in candidates:
+        if id(container) in seen_ids:
+            continue
+        seen_ids.add(id(container))
+        # A tab that lives inside the site nav/header is a menu, not content.
+        if container.find_parent(["nav", "header"]):
+            continue
+        label = container.find(["h2", "h3", "h4", "button", "a", "li", "span"])
         label_text = label.get_text(strip=True) if label else ""
         container_text = container.get_text(strip=True)
-        # If label exists but surrounding text is nearly just the label
         if label_text and len(container_text) < len(label_text) + 20:
             snippet = label_text[:60]
             if snippet not in hidden_tabs:   # collapse repeated identical labels
@@ -405,18 +437,20 @@ def check_en05(page_result: dict) -> Optional[dict]:
 
     n = len(hidden_tabs)
     examples = hidden_tabs[:3]
+    # Severity scales with how much content is hidden.
+    severity = "high" if n >= 4 else "medium"
 
     return _make_finding(
         "EN-05",
         f"Interactive content hidden until user interaction ({n} tab(s)/section(s))",
-        "high",
+        severity,
         (f"Found {n} tab/accordion section(s) on {url} with visible labels but "
          f"no readable content in raw HTML: {', '.join(repr(e) for e in examples)}."),
         (f"Pre-render at least a one-line summary for each of the {n} tab/section(s) "
          f"({', '.join(repr(e) for e in examples[:2])}) so visitors don't need to "
          "interact to see any content — the current tabs are invisible to both "
          "crawlers and visitors with JS issues."),
-        "high",
+        severity,
     )
 
 
@@ -552,12 +586,13 @@ def check_en08(page_result: dict) -> list:
             continue
         seen.add(label_text)
 
-        # A real "stat" makes a quantified claim about the business (users,
-        # clients, downloads, countries…). An element that is just a bare
-        # number with no such noun is almost always a UI badge — a cart/bag
-        # count, a notification dot, a step indicator — not a bragging metric.
+        # A real "stat" makes a terse quantified claim ("12,000 Downloads",
+        # "50+ Countries"). Require a stat noun AND a short label: a bare number
+        # with no noun is a UI badge (cart count, notification dot); a long
+        # sentence that merely contains the word "download" is a CTA or prose,
+        # not a counter.
         has_stat_noun = bool(STAT_BLOCK_RE.search(label_text))
-        if not has_stat_noun:
+        if not has_stat_noun or len(label_text.split()) > 7:
             continue
 
         # Check if a number appears in the element or adjacent sibling

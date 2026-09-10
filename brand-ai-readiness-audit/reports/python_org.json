@@ -1,8 +1,8 @@
 {
   "site": "www.python.org",
-  "audited_at": "2026-09-10T15:27:41.842118Z",
+  "audited_at": "2026-09-10T15:41:48.902480Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:27:41.842118Z",
+  "generated_at": "2026-09-10T15:41:48.902480Z",
   "target_url": "https://www.python.org/",
   "pages_audited": [
     "https://www.python.org/",
@@ -29,7 +29,7 @@
     "high_findings": 2,
     "medium_findings": 2,
     "low_findings": 4,
-    "total_flag_only": 6,
+    "total_flag_only": 2,
     "total_strengths": 1,
     "overall_health": "poor",
     "category_scores": {
@@ -113,7 +113,7 @@
       "id": "FS-04",
       "title": "Nav lists 4 items not reflected in footer",
       "severity": "low",
-      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'python', '\u25bcclose', 'skip to content'...",
+      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'skip to content', '\u25bcclose', 'python'...",
       "suggested_action": {
         "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
         "priority": "low"
@@ -160,7 +160,9 @@
       "reason": "Facts on https://www.python.org/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
       "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
       "pages": [
-        "https://www.python.org/"
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
+        "https://www.python.org/jobs/"
       ]
     },
     {
@@ -169,42 +171,8 @@
       "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
       "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
       "pages": [
-        "https://www.python.org/"
-      ]
-    },
-    {
-      "id": "FS-05",
-      "type": "flag_only",
-      "reason": "Facts on https://www.python.org/psf/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
-      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
-      "pages": [
-        "https://www.python.org/psf/"
-      ]
-    },
-    {
-      "id": "EN-06",
-      "type": "flag_only",
-      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/psf/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
-      "pages": [
-        "https://www.python.org/psf/"
-      ]
-    },
-    {
-      "id": "FS-05",
-      "type": "flag_only",
-      "reason": "Facts on https://www.python.org/jobs/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
-      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
-      "pages": [
-        "https://www.python.org/jobs/"
-      ]
-    },
-    {
-      "id": "EN-06",
-      "type": "flag_only",
-      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/jobs/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
-      "pages": [
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
         "https://www.python.org/jobs/"
       ]
     }

@@ -1,8 +1,8 @@
 {
   "site": "en.wikipedia.org",
-  "audited_at": "2026-09-10T15:27:50.171934Z",
+  "audited_at": "2026-09-10T15:41:58.068232Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:27:50.171934Z",
+  "generated_at": "2026-09-10T15:41:58.068232Z",
   "target_url": "https://en.wikipedia.org/wiki/Tim_Berners-Lee",
   "pages_audited": [
     "https://en.wikipedia.org/wiki/Tim_Berners-Lee"
@@ -18,13 +18,13 @@
     ]
   },
   "summary": {
-    "total_findings": 9,
+    "total_findings": 8,
     "critical": 0,
-    "high": 3,
+    "high": 2,
     "medium": 3,
     "low": 3,
     "critical_findings": 0,
-    "high_findings": 3,
+    "high_findings": 2,
     "medium_findings": 3,
     "low_findings": 3,
     "total_flag_only": 1,
@@ -33,7 +33,7 @@
     "category_scores": {
       "DV": 3,
       "FS": 2,
-      "EN": 4,
+      "EN": 3,
       "ED": 0
     }
   },
@@ -58,19 +58,6 @@
       "evidence": "Found 1 link(s) in primary nav/footer on https://en.wikipedia.org/wiki/Tim_Berners-Lee with href='#' or empty href: '(Top)' \u2192 '#'.",
       "suggested_action": {
         "summary": "Fix or remove the 1 dead link(s) in navigation: '(Top)' \u2192 '#' \u2014 dead ends in primary navigation are a direct, confirmed bounce driver.",
-        "priority": "high"
-      },
-      "pages": [
-        "https://en.wikipedia.org/wiki/Tim_Berners-Lee"
-      ]
-    },
-    {
-      "id": "EN-05",
-      "title": "Interactive content hidden until user interaction (5 tab(s)/section(s))",
-      "severity": "high",
-      "evidence": "Found 5 tab/accordion section(s) on https://en.wikipedia.org/wiki/Tim_Berners-Lee with visible labels but no readable content in raw HTML: 'Article', 'Talk', 'Read'.",
-      "suggested_action": {
-        "summary": "Pre-render at least a one-line summary for each of the 5 tab/section(s) ('Article', 'Talk') so visitors don't need to interact to see any content \u2014 the current tabs are invisible to both crawlers and visitors with JS issues.",
         "priority": "high"
       },
       "pages": [
@@ -193,11 +180,6 @@
     },
     {
       "summary": "Fix or remove the 1 dead link(s) in navigation: '(Top)' \u2192 '#' \u2014 dead ends in primary navigation are a direct, confirmed bounce driver.",
-      "priority": "high",
-      "detail": ""
-    },
-    {
-      "summary": "Pre-render at least a one-line summary for each of the 5 tab/section(s) ('Article', 'Talk') so visitors don't need to interact to see any content \u2014 the current tabs are invisible to both crawlers and visitors with JS issues.",
       "priority": "high",
       "detail": ""
     },

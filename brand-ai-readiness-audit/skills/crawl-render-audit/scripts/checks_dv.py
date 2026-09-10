@@ -403,22 +403,38 @@ def check_dv05(page_result: dict) -> list:
     url = _page_url(page_result)
     findings = []
 
-    # DV-05a: Images near trust sections with empty/generic alt
-    bad_imgs = []
-    for img in s.find_all("img"):
-        alt = (img.get("alt") or "").strip().lower()
-        if alt in ("", "image", "logo", "icon", "photo", "banner", "bg"):
-            # Check if parent context suggests trust-signal content
-            parents_text = " ".join(
-                p.get_text()[:200]
-                for p in img.parents
-                if p.name in ("section", "div", "figure", "article", "li")
-            )
-            if TRUST_SECTION_RE.search(parents_text[:400]):
-                src = (img.get("src") or "")[:80]
-                bad_imgs.append(src)
+    # DV-05a: alt-less images inside a genuine "logo wall" — a container whose
+    # own class/id/heading names it a partners/clients/sponsors/awards section.
+    # Matching the word "award" or "logo" anywhere in 400 chars of ancestor
+    # prose (as before) fires on every editorial article image; require the
+    # label to be structural.
+    LOGO_WALL_RE = re.compile(
+        r"(partner|client|sponsor|award|accreditation|certification"
+        r"|trusted[-_\s]?by|as[-_\s]?seen[-_\s]?in|our[-_\s]?customers|brands?)",
+        re.IGNORECASE,
+    )
 
-    if bad_imgs:
+    def _is_logo_wall(el) -> bool:
+        attr_blob = " ".join(
+            (el.get("class") or []) + [el.get("id") or "", el.get("aria-label") or ""]
+        )
+        if LOGO_WALL_RE.search(attr_blob):
+            return True
+        heading = el.find(["h2", "h3", "h4"])
+        return bool(heading and LOGO_WALL_RE.search(heading.get_text(" ", strip=True)))
+
+    wall_imgs = []
+    for wrap in s.find_all(["section", "div", "ul"]):
+        if not _is_logo_wall(wrap):
+            continue
+        for img in wrap.find_all("img"):
+            alt = (img.get("alt") or "").strip().lower()
+            if alt in ("", "image", "logo", "icon", "photo", "banner", "bg"):
+                wall_imgs.append((img.get("src") or "")[:80])
+
+    bad_imgs = list(dict.fromkeys(wall_imgs))[:10]
+
+    if len(bad_imgs) >= 3:
         n = len(bad_imgs)
         findings.append(_make_finding(
             "DV-05a",
