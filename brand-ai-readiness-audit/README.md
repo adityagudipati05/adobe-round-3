@@ -314,11 +314,13 @@ Run all test suites sequentially:
 python smoke_test_dv.py; python smoke_test_fs.py; python smoke_test_en.py; python smoke_test_ed.py; python smoke_test_orchestrator.py; python test_dv_checks_stdlib.py
 ```
 
-Alternatively, to run all tests and package the submission zip automatically:
+Alternatively, `build_submission.py` (at the marketplace root) runs all 7 suites
+and repackages/verifies the submission zip in one step:
 ```bash
-# From repository root:
-python build_submission.py  # or ./build_submission.sh
+python build_submission.py   # or:  ./build_submission.sh
 ```
+It auto-detects the marketplace root, so it works whether run from here or from a
+parent repository directory.
 
 ---
 
