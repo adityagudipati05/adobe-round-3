@@ -1,8 +1,8 @@
 {
   "site": "www.python.org",
-  "audited_at": "2026-09-10T15:12:28.452124Z",
+  "audited_at": "2026-09-10T15:27:41.842118Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:12:28.452124Z",
+  "generated_at": "2026-09-10T15:27:41.842118Z",
   "target_url": "https://www.python.org/",
   "pages_audited": [
     "https://www.python.org/",
@@ -47,7 +47,7 @@
       "evidence": "Page https://www.python.org/ is missing these <head> fields (absent or empty): twitter:title, twitter:description.",
       "suggested_action": {
         "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' \u2014 currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
-        "priority": "medium"
+        "priority": "high"
       },
       "pages": [
         "https://www.python.org/",
@@ -62,7 +62,7 @@
       "evidence": "Page https://www.python.org/ contains a 'copyright notice' referencing 2001, which is 9019 days in the past. Snippet: '<span class=\"pre\">Copyright &copy;2001-2026.</span>'.",
       "suggested_action": {
         "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
-        "priority": "medium"
+        "priority": "high"
       },
       "pages": [
         "https://www.python.org/",
@@ -113,7 +113,7 @@
       "id": "FS-04",
       "title": "Nav lists 4 items not reflected in footer",
       "severity": "low",
-      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'python', 'skip to content', '\u25b2the python network'...",
+      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'python', '\u25bcclose', 'skip to content'...",
       "suggested_action": {
         "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
         "priority": "low"
@@ -218,12 +218,12 @@
   "suggested_actions": [
     {
       "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' \u2014 currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
-      "priority": "medium",
+      "priority": "high",
       "detail": ""
     },
     {
       "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
-      "priority": "medium",
+      "priority": "high",
       "detail": ""
     },
     {

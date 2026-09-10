@@ -171,7 +171,7 @@ def check_dv01(page_result: dict) -> Optional[dict]:
              f"a populated <head> (title='{head['title'][:60]}'). "
              "All content is likely assembled by client-side JavaScript."),
             (f"Move content for '{head['title'][:60]}' to server-side rendering "
-             "(SSR) or a static prerender step — currently {wc} words appear in "
+             f"(SSR) or a static prerender step — currently {wc} words appear in "
              "raw HTML, leaving crawlers with nothing to index. "
              "This page is routed to EN-13 (engagement not assessed)."),
             "critical",

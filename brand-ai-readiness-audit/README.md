@@ -336,7 +336,7 @@ on the live targets drift as those sites change; regenerate with
 | `bot_block_dv13_en12.json` | synthetic 403 (`/bot-block`) | `DV-13`, `DV-17` | 0 / 0 | poor | Bot-block ownership: `DV-13` + `DV-17` only; EN routed to `EN-12`, FS and ED skipped entirely. |
 | `synthetic_bot_block_dv13.json` | synthetic 403 (Cloudflare body) | `DV-13`, `DV-17` | 0 / 0 | poor | Same, via a `cf-mitigated` challenge fixture on the site root. |
 | `noindex_en11.json` | synthetic `noindex` page | *(none)* | 0 / 0 | excellent | `intentionally_excluded`: DV emits no finding, EN → `EN-11`, FS and ED skipped. |
-| `hackernews.json` | `news.ycombinator.com` | `DV-02`, `DV-03`, `FS-03`, `DV-11`, `DV-20`, `ED-05`, `EN-09` | 0 / 6 | critical | Missing schema/OG tags, no freshness metadata, high boilerplate ratio, no company-orientation text. |
+| `hackernews.json` | `news.ycombinator.com` | `DV-02`, `DV-03`, `FS-03`, `DV-11`, `DV-20`, `ED-05`, `EN-08` | 0 / 6 | critical | Missing schema/OG tags, no freshness metadata, high boilerplate ratio, no company-orientation text. |
 | `kisansuvidha.json` | `kisansuvidha.gov.in` | `DV-01`, `DV-03`, `DV-02`, `DV-11`, `ED-04`, `FS-03` | 0 / 2 | poor | `DV-01` Critical (populated head, empty body) cascading EN → `EN-13`; ED runs because the target is the homepage. |
 | `python_org.json` | `www.python.org` | `DV-02`, `FS-01`, `DV-11`, `ED-05`, `FS-03`, `FS-04`, `EN-08`, `ED-04` | 1 / 6 | poor | Stale date claim, nav/footer drift, missing social `sameAs`, `EN-10` layered-nav strength. |
 | `wikipedia_tim.json` | `en.wikipedia.org/wiki/Tim_Berners-Lee` | `DV-02`, `EN-01`, `EN-05`, `DV-09a`, `FS-01`, `EN-03`, `DV-15`, `FS-04`, `EN-08` | 4 / 1 | poor | `wikidata_backed` → all ED skipped (`WIKIDATA-SAMEAS` + `ED-WIKIDATA-SKIP` strengths); link-stuffing, `DV-15` capped at Low for gallery-style repeats. |
@@ -359,14 +359,15 @@ on the live targets drift as those sites change; regenerate with
 ## 8. Quick Start & Dependencies
 
 ### Dependencies
-No `requirements.txt` is committed in the repository. The required packages are derived directly from the import statements in `skills/*/scripts/*.py`:
+Two third-party packages, pinned in [`requirements.txt`](requirements.txt) at the marketplace root:
 - `requests` (HTTP GET/HEAD fetching)
-- `beautifulsoup4` (HTML parsing)
-- `lxml` (Fast parser backend, optional fallback to `html.parser`)
+- `beautifulsoup4` (HTML parsing — uses the stdlib `html.parser` backend, so `lxml` is **not** needed)
+
+Everything else is the Python standard library.
 
 Install command:
 ```bash
-pip install requests beautifulsoup4 lxml
+pip install -r requirements.txt
 ```
 
 ### Running the Orchestrator

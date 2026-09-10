@@ -287,7 +287,11 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
         base_sev = finding.get("severity", "low")
         site_wide = len(affected) >= 3 and len(affected) == total_pages
         if site_wide and base_sev in ("high", "medium"):
-            finding["severity"] = _escalate_severity(base_sev)
+            new_sev = _escalate_severity(base_sev)
+            finding["severity"] = new_sev
+            # Keep the suggested action's priority in step with the escalation.
+            if isinstance(finding.get("suggested_action"), dict):
+                finding["suggested_action"]["priority"] = new_sev
         merged.append(finding)
 
     # Sort: severity first, then skill order
@@ -598,7 +602,8 @@ def run_audit(url: str,
     summary         = _build_summary(findings, flag_only, strengths)
 
     domain = urllib.parse.urlparse(url).netloc or url
-    now_iso = datetime.datetime.utcnow().isoformat() + "Z"
+    now_iso = (datetime.datetime.now(datetime.timezone.utc)
+               .replace(tzinfo=None).isoformat() + "Z")
 
     report: dict = {
         "site":            domain,

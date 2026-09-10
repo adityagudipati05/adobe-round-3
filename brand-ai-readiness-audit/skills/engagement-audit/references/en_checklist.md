@@ -154,6 +154,11 @@ and crawlability of video-only sections).
 Find stat containers (class `stat|counter|metric|number|figure|count`, `data-count`, `data-target`),  
 plus any element with stat-like label words (users, clients, downloads, reviews, etc.).
 
+**Required:** the element's own text must contain a stat noun (users / clients /
+customers / downloads / projects / countries / …). A bare number with no such
+noun — a cart/bag badge, a notification dot, a step indicator — is a UI control,
+not a bragging metric, and must **not** be flagged.
+
 **Severity (two tiers):**
 
 | Condition | Severity |

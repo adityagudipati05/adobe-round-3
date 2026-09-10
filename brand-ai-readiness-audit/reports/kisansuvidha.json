@@ -1,8 +1,8 @@
 {
   "site": "kisansuvidha.gov.in",
-  "audited_at": "2026-09-10T15:12:20.555001Z",
+  "audited_at": "2026-09-10T15:27:30.548934Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:12:20.555001Z",
+  "generated_at": "2026-09-10T15:27:30.548934Z",
   "target_url": "https://kisansuvidha.gov.in/",
   "pages_audited": [
     "https://kisansuvidha.gov.in/"
@@ -44,7 +44,7 @@
       "severity": "critical",
       "evidence": "Raw HTML fetch of https://kisansuvidha.gov.in/ returned only 2 body words despite a populated <head> (title='Kisan Suvidha'). All content is likely assembled by client-side JavaScript.",
       "suggested_action": {
-        "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
+        "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently 2 words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
         "priority": "critical"
       },
       "pages": [
@@ -140,7 +140,7 @@
   "strengths": [],
   "suggested_actions": [
     {
-      "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
+      "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently 2 words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
       "priority": "critical",
       "detail": ""
     },

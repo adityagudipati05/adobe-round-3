@@ -1,8 +1,8 @@
 {
   "site": "news.ycombinator.com",
-  "audited_at": "2026-09-10T15:12:18.066203Z",
+  "audited_at": "2026-09-10T15:27:28.207554Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:12:18.066203Z",
+  "generated_at": "2026-09-10T15:27:28.207554Z",
   "target_url": "https://news.ycombinator.com/",
   "pages_audited": [
     "https://news.ycombinator.com/",
@@ -47,7 +47,7 @@
       "evidence": "Page https://news.ycombinator.com/ is missing these <head> fields (absent or empty): meta[description], og:title, og:description, og:image, twitter:title, twitter:description.",
       "suggested_action": {
         "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
-        "priority": "high"
+        "priority": "critical"
       },
       "pages": [
         "https://news.ycombinator.com/",
@@ -77,7 +77,7 @@
       "evidence": "Page https://news.ycombinator.com/news has no article:published_time, no article:modified_time meta tag, and no visible 'last updated / as of [date]' text in the body.",
       "suggested_action": {
         "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
-        "priority": "medium"
+        "priority": "high"
       },
       "pages": [
         "https://news.ycombinator.com/",
@@ -103,7 +103,7 @@
       "id": "DV-20",
       "title": "High boilerplate-to-content ratio: only 99% is primary content",
       "severity": "medium",
-      "evidence": "Page https://news.ycombinator.com/news: ~732 primary-content words out of 733 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
+      "evidence": "Page https://news.ycombinator.com/news: ~724 primary-content words out of 725 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
       "suggested_action": {
         "summary": "Wrap the primary content in a clear semantic boundary (<article> or <main>) so extraction tools can reliably isolate it from surrounding site chrome (related links, sidebars, nav, footer) \u2014 currently only ~99% of page text is primary content.",
         "priority": "medium"
@@ -127,17 +127,18 @@
       ]
     },
     {
-      "id": "EN-09",
-      "title": "No trust content (testimonials, reviews, case studies) on key page",
+      "id": "EN-08",
+      "title": "Stat element has no static value: 'Movie Review: Musk(variety.com)'",
       "severity": "low",
-      "evidence": "Page https://news.ycombinator.com/ has no testimonials, reviews, client quotes, or case-study snippets \u2014 only logos/brand names at most.",
+      "evidence": "Stat/counter element on https://news.ycombinator.com/ with label 'Movie Review: Musk(variety.com)' has no digit value in raw HTML \u2014 likely a JS count-up with no static fallback.",
       "suggested_action": {
-        "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
+        "summary": "Provide a real static fallback value in the HTML for 'Movie Review: Musk(variety.com)' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
         "priority": "low"
       },
       "pages": [
         "https://news.ycombinator.com/",
-        "https://news.ycombinator.com"
+        "https://news.ycombinator.com",
+        "https://news.ycombinator.com/news"
       ]
     }
   ],
@@ -200,18 +201,18 @@
   "strengths": [],
   "suggested_actions": [
     {
+      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+      "priority": "critical",
+      "detail": ""
+    },
+    {
       "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
       "priority": "critical",
       "detail": ""
     },
     {
-      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
-      "priority": "high",
-      "detail": ""
-    },
-    {
       "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
-      "priority": "medium",
+      "priority": "high",
       "detail": ""
     },
     {
@@ -235,7 +236,7 @@
       "detail": "FAQ content was detected on the site. Wrapping questions and answers in schema.org/FAQPage markup allows AI assistants and search engines to quote structured solutions directly in answers."
     },
     {
-      "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
+      "summary": "Provide a real static fallback value in the HTML for 'Movie Review: Musk(variety.com)' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
       "priority": "low",
       "detail": ""
     },

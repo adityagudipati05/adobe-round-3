@@ -396,7 +396,9 @@ def check_en05(page_result: dict) -> Optional[dict]:
         container_text = container.get_text(strip=True)
         # If label exists but surrounding text is nearly just the label
         if label_text and len(container_text) < len(label_text) + 20:
-            hidden_tabs.append(label_text[:60])
+            snippet = label_text[:60]
+            if snippet not in hidden_tabs:   # collapse repeated identical labels
+                hidden_tabs.append(snippet)
 
     if not hidden_tabs:
         return None
@@ -549,6 +551,14 @@ def check_en08(page_result: dict) -> list:
         if label_text in seen:
             continue
         seen.add(label_text)
+
+        # A real "stat" makes a quantified claim about the business (users,
+        # clients, downloads, countries…). An element that is just a bare
+        # number with no such noun is almost always a UI badge — a cart/bag
+        # count, a notification dot, a step indicator — not a bragging metric.
+        has_stat_noun = bool(STAT_BLOCK_RE.search(label_text))
+        if not has_stat_noun:
+            continue
 
         # Check if a number appears in the element or adjacent sibling
         has_digit = bool(re.search(r"\b\d+", label_text))

@@ -1,8 +1,8 @@
 {
   "site": "127.0.0.1:8899",
-  "audited_at": "2026-09-10T15:12:01.935039Z",
+  "audited_at": "2026-09-10T15:27:08.172170Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-10T15:12:01.935039Z",
+  "generated_at": "2026-09-10T15:27:08.172170Z",
   "target_url": "http://127.0.0.1:8899/bot-block",
   "pages_audited": [
     "http://127.0.0.1:8899/bot-block"

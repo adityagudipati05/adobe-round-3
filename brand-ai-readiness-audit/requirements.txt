@@ -1,0 +1,6 @@
+# Runtime dependencies for the brand-ai-readiness-audit marketplace.
+# Only two third-party packages are used; everything else is the Python
+# standard library. HTML is parsed with the stdlib "html.parser" backend,
+# so lxml is NOT required.
+requests>=2.31.0
+beautifulsoup4>=4.12.0
