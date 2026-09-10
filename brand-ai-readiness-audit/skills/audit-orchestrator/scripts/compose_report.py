@@ -140,8 +140,13 @@ def _apply_cascading_gates(dv_flags: dict, page_result: dict,
         "ed_skip": False,
     }
 
-    # FS: skip only on network error
-    if page_result.get("error"):
+    # FS: skip on network error, and on a blocked / robots-disallowed fetch —
+    # there is no readable page to assess freshness or corroboration on, and
+    # EN already routes such pages to EN-12.
+    if (page_result.get("error")
+            or dv_flags.get("dv13_fired") or dv_flags.get("dv16_fired")
+            or page_result.get("blocked") or page_result.get("robots_disallowed")
+            or page_result.get("noindex")):
         gates["run_fs"] = False
 
     # EN gate §2a / §2b
@@ -150,9 +155,17 @@ def _apply_cascading_gates(dv_flags: dict, page_result: dict,
     elif dv_flags.get("dv01_critical"):
         gates["en_mode"] = "en13_only"
 
-    # ED gate §2c
+    # ED gate §2c — wikidata-backed entity: skip ED, log the Wikidata strength.
     if dv_flags.get("wikidata_backed"):
         gates["ed_skip"] = True
+
+    # ED gate — a blocked / disallowed / errored fetch has no readable identity
+    # signal; DV-13/DV-16 own the page. Skip ED silently (no strength note).
+    if (page_result.get("error")
+            or dv_flags.get("dv13_fired") or dv_flags.get("dv16_fired")
+            or page_result.get("blocked") or page_result.get("robots_disallowed")
+            or page_result.get("noindex")):
+        gates["run_ed"] = False
 
     return gates
 
@@ -174,7 +187,9 @@ def _audit_page(url: str, page_result: dict, verbose: bool = False) -> dict:
     # Step 2: FS
     fs = run_fs_checks(page_result) if gates["run_fs"] else {
         "url": url, "findings": [], "flag_only_items": [], "strengths": [],
-        "skipped": True, "skip_reason": "fetch_error",
+        "skipped": True,
+        "skip_reason": ("fetch_error" if page_result.get("error")
+                        else "fetch_blocked"),
     }
 
     # Step 3: EN — pass dv_flags so it can apply its internal routing
@@ -183,19 +198,20 @@ def _audit_page(url: str, page_result: dict, verbose: bool = False) -> dict:
     }
 
     # Step 4: ED — pass dv_flags and dv_findings
-    ed = run_ed_checks(
-        page_result,
-        dv_flags=dv_flags,
-        dv_findings=dv_findings,
-    ) if not gates["ed_skip"] else {
-        "url": url, "findings": [], "flag_only_items": [],
-        "strengths": [{
-            "_strength": True,
-            "id": "ED-WIKIDATA-SKIP",
-            "title": ("All ED checks skipped — entity identity is already "
-                      "anchored to the Wikidata knowledge graph."),
-        }],
-    }
+    if not gates["run_ed"]:
+        ed = {"url": url, "findings": [], "flag_only_items": [], "strengths": []}
+    elif gates["ed_skip"]:
+        ed = {
+            "url": url, "findings": [], "flag_only_items": [],
+            "strengths": [{
+                "_strength": True,
+                "id": "ED-WIKIDATA-SKIP",
+                "title": ("All ED checks skipped — entity identity is already "
+                          "anchored to the Wikidata knowledge graph."),
+            }],
+        }
+    else:
+        ed = run_ed_checks(page_result, dv_flags=dv_flags, dv_findings=dv_findings)
 
     # ED-02 suppression: if DV-03 fired, remove any ED-02 findings (§3a)
     if _dv03_fired(dv_findings):
@@ -236,9 +252,12 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
     Merge per-page findings by check ID.
     - Keep worst severity instance.
     - Collect all page URLs.
-    - Escalate severity when same ID fires on ≥ 3 pages (§4).
+    - Escalate severity one level only when the SAME id fires on every audited
+      page (and at least 3), i.e. it is a genuine site-wide defect — not merely
+      because a wide crawl visited many pages (§4). `low` is never escalated.
     - Sort by severity then skill order.
     """
+    total_pages = len(per_page_results)
     by_id: Dict[str, dict] = {}
     pages_by_id: Dict[str, List[str]] = defaultdict(list)
 
@@ -265,8 +284,10 @@ def _merge_findings(per_page_results: List[dict]) -> List[dict]:
     for fid, finding in by_id.items():
         affected = list(dict.fromkeys(pages_by_id[fid]))   # dedupe, preserve order
         finding["pages"] = affected
-        if len(affected) >= 3:
-            finding["severity"] = _escalate_severity(finding["severity"])
+        base_sev = finding.get("severity", "low")
+        site_wide = len(affected) >= 3 and len(affected) == total_pages
+        if site_wide and base_sev in ("high", "medium"):
+            finding["severity"] = _escalate_severity(base_sev)
         merged.append(finding)
 
     # Sort: severity first, then skill order

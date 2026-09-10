@@ -157,7 +157,8 @@ If collision risk exists AND the missing schema lacks `identifier`/`sameAs` fiel
 - LLM judgment step: confirm near-identical phrasing pattern across quotes (e.g. all say "great service / highly recommend").
 
 **Severity:** Medium.  
-**No finding if:** outbound links to real review platforms are present.
+**No finding if:** outbound links to real review platforms are present.  
+**No finding if:** the only matches are bare `<blockquote>` / `.review` elements with **no** "testimonials / what our clients say" section language **and zero** generic-praise phrasing — those are usually genuine product reviews or editorial pull-quotes, not a manufactured-trust pattern. Fire only when there is a real testimonial-section signal or repeated generic phrasing.
 
 **Template:**  
 > "Link testimonials to verifiable external reviews (Google/LinkedIn) — the {n} testimonials shown are  
@@ -258,9 +259,14 @@ If collision risk exists AND the missing schema lacks `identifier`/`sameAs` fiel
 
 | Repeat count | Severity |
 |-------------|----------|
-| 4–5 | Low |
-| 6–10 | Medium |
-| > 10 | High |
+| 4–10 | Low |
+| 11–20 | Medium |
+| > 20 | High |
+
+**Gallery/carousel exception:** when the repeated block is image-gallery UI
+(sample text contains `image N of`, `view all`, `hero image`, `slide`,
+`thumbnail`, `zoom`, `gallery`), cap at **Low** regardless of count — cloning
+one caption block per slide is a minor extraction nuisance, not manipulation.
 
 **Ownership boundary vs. DV-06:**  
 - DV-15 = same DOM block mechanically repeated (rendering artefact).  

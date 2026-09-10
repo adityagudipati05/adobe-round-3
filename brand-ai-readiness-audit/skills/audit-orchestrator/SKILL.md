@@ -51,7 +51,7 @@ the sub-skills directly.
 
 7. **Aggregate findings** across all pages:
    - Merge findings by check ID; keep worst severity; list all affected pages.
-   - Escalate severity by one level when same check ID fires on ≥ 3 pages.
+   - Escalate severity by one level only when the same check ID fires on *every* audited page (and ≥ 3) — a real site-wide defect; `low` is never escalated.
    - Deduplicate strengths (once per site).
    - Flag-only items are NOT deduplicated (each page needs independent lookup).
 

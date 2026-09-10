@@ -20,11 +20,37 @@ disambiguation findings on a Wikidata-backed entity is noise.
 
 ---
 
+## Scope Condition — identity-relevant pages only
+
+Entity identity is a property of the **site**, not of every crawled URL. Run
+ED-01 … ED-06 only on:
+
+- the **homepage** (`/`, `/index.*`, `/home`, `/en`), or
+- a page whose path names the organisation: `/about`, `/company`, `/who-we-are`,
+  `/our-story`, `/contact`, `/team`, `/leadership`, `/impressum`, `/corporate`.
+
+On any other page (product-detail, category, cart, search, blog post, …) the ED
+skill returns an empty result. Without this gate, a name-collision or
+"no social profile links" finding is emitted once per crawled product page —
+the same defect multiplied into noise.
+
+## Brand-name extraction — reject product titles
+
+When deriving the brand name from `og:title` / `<title>`, discard any candidate
+that looks like a **product or article title** rather than an organisation name:
+longer than 40 chars, more than 6 words, or containing measurement units
+(`100"`, `144Hz`, `4K`, `UHD`), model numbers (`100PQL7556/F7`), or 3+‑digit
+runs. Fall back to the trailing `<title>` segment (often the site name, e.g.
+`… - Walmart.com` → `Walmart`) and finally to the domain label.
+
+---
+
 ## Check Execution Order
 
 | Step | Check | Gate |
 |------|-------|------|
-| 0 | wikidata_backed? | Skip all if true |
+| 0a | wikidata_backed? | Skip all if true |
+| 0b | identity-relevant page? | Skip all unless homepage / about / contact-type URL |
 | 1 | **ED-01** | Always (sets `_ed01_fired` flag) |
 | 2 | ED-02 | Only if `_ed01_fired = True` AND Org schema exists |
 | 3 | ED-03 | Always |

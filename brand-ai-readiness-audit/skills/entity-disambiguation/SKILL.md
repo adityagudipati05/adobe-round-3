@@ -30,9 +30,19 @@ its result dict. The DV flags and DV findings from that result are passed in.
    log a site-level strength ("entity anchored to Wikidata knowledge graph"),  
    log ED-05 as a strength, and **return**. All ED-01…ED-06 checks are skipped.
 
+1b. **Scope gate:** If the page is not identity-relevant — i.e. not the homepage
+   (`/`, `/index.*`, `/home`, `/en`) and its path does not contain `/about`,
+   `/company`, `/who-we-are`, `/our-story`, `/contact`, `/team`, `/leadership`,
+   `/impressum`, `/corporate` — **return an empty result**. Entity identity is a
+   site-level property; running these checks on every product/utility page just
+   multiplies one finding into noise.
+
 2. **ED-01 (MUST run first)** (`check_ed01()`):  
    Extract brand name from Organization JSON-LD > `og:site_name` > `og:title` prefix >  
-   `<title>` prefix > domain name.  
+   `<title>` prefix > domain name — **rejecting any candidate that looks like a
+   product/article title** (>40 chars, >6 words, or containing measurement units /
+   model numbers / 3+‑digit runs); fall back to the trailing `<title>` segment
+   (usually the site name) then the domain label.  
    Check against collision tiers:  
    - Known high-collision acronym (AI, HR, HP, IBM, GE, SAP…) → **High**.  
    - Generic English word (apple, nexus, edge, canvas…) → **Medium**.  

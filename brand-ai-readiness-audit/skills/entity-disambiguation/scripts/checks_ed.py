@@ -118,13 +118,81 @@ def _netloc(page_result: dict) -> str:
     return urllib.parse.urlparse(_page_url(page_result)).netloc
 
 
+# Path segments where entity identity is actually a property of the page.
+# ED checks are site-level: firing name-collision / social-profile / Wikipedia
+# findings on every crawled product or transactional page just multiplies the
+# same finding into noise. Assess identity on the homepage + the pages that
+# exist to describe the organisation.
+_IDENTITY_PATH_HINTS = (
+    "/about", "/company", "/who-we-are", "/our-story", "/our-company",
+    "/contact", "/team", "/leadership", "/impressum", "/corporate",
+)
+_HOMEPAGE_PATHS = frozenset({
+    "", "/", "/index.html", "/index.php", "/index.htm", "/home", "/en", "/en-us",
+})
+
+
+def _is_identity_page(page_result: dict) -> bool:
+    path = urllib.parse.urlparse(_page_url(page_result)).path.lower().rstrip("/")
+    if path in _HOMEPAGE_PATHS:
+        return True
+    return any(hint in path for hint in _IDENTITY_PATH_HINTS)
+
+
+# A candidate string that looks like a product/page title rather than a brand
+# name: measurement units, model numbers, resolution/spec tokens, or simply
+# very long. Used to reject <title>/og:title fragments on product-detail pages
+# (e.g. 'Philips 100" QLED 4K UHD 144Hz Smart TV (100PQL7556/F7)').
+_PRODUCT_TITLE_RE = re.compile(
+    r"(\d+\s*(\"|''|inch|inches|cm|mm|hz|khz|ghz|watt|w\b|kg|lbs|ml|oz|gb|tb|mp|px|k\b|p\b))"
+    r"|\b\d{3,}\b"
+    r"|\b[A-Z0-9]{2,}[-/][A-Z0-9]{2,}\b"
+    r"|\b(4k|8k|uhd|hdr|qled|oled|led|nvme|ssd|ddr\d)\b",
+    re.IGNORECASE,
+)
+
+
+# Generic page-label words: a <title> segment built only from these is
+# describing the page, not naming the brand ("Store Homepage", "Welcome",
+# "Official Site", "Online Shop").
+_GENERIC_PAGE_WORDS = frozenset({
+    "home", "homepage", "page", "welcome", "official", "site", "website",
+    "online", "store", "shop", "index", "main",
+})
+
+
+def _looks_like_product_title(candidate: str) -> bool:
+    """True if a candidate brand string is really a product / page title."""
+    if not candidate:
+        return True
+    if len(candidate) > 40:
+        return True
+    words = candidate.split()
+    if len(words) > 6:
+        return True
+    if words and all(re.sub(r"[^a-z]", "", w.lower()) in _GENERIC_PAGE_WORDS
+                     for w in words):
+        return True
+    return bool(_PRODUCT_TITLE_RE.search(candidate))
+
+
+def _domain_brand(page_result: dict) -> str:
+    """Brand name derived from the registrable domain label (last resort)."""
+    host = _netloc(page_result)
+    if host.startswith("www."):
+        host = host[4:]
+    label = host.split(".")[0] if host else ""
+    return label.replace("-", " ").replace("_", " ").title() or "this site"
+
+
 def _extract_brand_name(page_result: dict) -> str:
     """
-    Extract the brand name from (in order of preference):
+    Extract the *brand/entity* name (never a product or article title) from,
+    in order of preference:
     1. Organization JSON-LD 'name' field
     2. og:site_name
-    3. og:title (first token before ' – ' or ' | ')
-    4. <title> prefix
+    3. og:title / <title> prefix — only when it does not look like a product title
+    4. <title> suffix after a separator (often the site name), if short
     5. Domain name (fallback)
     """
     head = page_result.get("head", {})
@@ -146,33 +214,38 @@ def _extract_brand_name(page_result: dict) -> str:
         except (json.JSONDecodeError, TypeError):
             pass
 
-    # 2. og:site_name
+    # 2. og:site_name (this is exactly the brand, by definition)
     og_site = head.get("og_site_name", "").strip()
     if og_site:
         return og_site
 
-    # 3. og:title — extract prefix before separator, or use directly if short
-    og_title = head.get("og_title", "").strip()
-    if og_title:
-        for sep in [" – ", " | ", " - ", " :: "]:
-            if sep in og_title:
-                return og_title.split(sep)[0].strip()
-        # No separator found — if it's short enough, it IS the brand name
-        if len(og_title) < 40:
-            return og_title
+    # 3./4. og:title then <title> — the brand is normally the FIRST segment
+    #       ("Brand | Page"); when that looks like a product/article title
+    #       (product-detail pages), fall back to the LAST segment, which is
+    #       usually the site name ("Long Product Name - Brand.com").
+    def _strip_tld(s: str) -> str:
+        return re.sub(r"\.(com|net|org|io|co|co\.\w+|shop|store)$", "", s,
+                      flags=re.IGNORECASE).strip()
 
-    # 4. <title> prefix
-    title = head.get("title", "").strip()
-    if title:
-        for sep in [" – ", " | ", " - ", " :: "]:
-            if sep in title:
-                return title.split(sep)[0].strip()
-        if len(title) < 40:
-            return title
+    for raw in (head.get("og_title", ""), head.get("title", "")):
+        raw = (raw or "").strip()
+        if not raw:
+            continue
+        segments = [s.strip() for s in re.split(r"\s+[–|\-:]{1,2}\s+", raw) if s.strip()]
+        if not segments:
+            continue
+        first = segments[0]
+        if not _looks_like_product_title(first):
+            return first
+        last = _strip_tld(segments[-1])
+        if last and last != first and not _looks_like_product_title(last):
+            return last
+        # Whole string only if it is plausibly a brand.
+        if not _looks_like_product_title(raw):
+            return raw
 
     # 5. Domain fallback
-    domain = _netloc(page_result).lstrip("www.").split(".")[0]
-    return domain.replace("-", " ").replace("_", " ").title()
+    return _domain_brand(page_result)
 
 
 def _parse_org_schema(page_result: dict) -> Optional[dict]:
@@ -667,6 +740,13 @@ def run_ed_checks(page_result: dict,
         ed05 = check_ed05(page_result, wikidata_backed=True)
         if ed05.get("_strength"):
             S.append(ed05)
+        return out
+
+    # ── Site-level scope gate ───────────────────────────────────────────────
+    # Entity identity is a property of the site, not of every deep page. Only
+    # assess it on the homepage and org-description pages so the same finding
+    # is not emitted once per crawled product/utility URL.
+    if not _is_identity_page(page_result):
         return out
 
     # ── ED-01: Name collision (must run first; sets _ed01_fired) ──────────────

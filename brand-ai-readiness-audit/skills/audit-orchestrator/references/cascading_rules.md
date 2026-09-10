@@ -10,7 +10,7 @@
 
 | Problem | Owner | Notes |
 |---------|-------|-------|
-| Page blocked by bot-detect | **DV-13** | Entire page result skipped; EN/FS/ED not run |
+| Page blocked by bot-detect | **DV-13** | EN routed to EN-12; FS and ED not run |
 | Page disallowed by robots.txt | **DV-16** | As above |
 | Page has noindex | DV (no finding emitted) | Page marked `intentionally_excluded`; other skills skip |
 | No `<meta>` description | **DV-01** | FS/EN/ED still run |
@@ -50,12 +50,30 @@ if dv_flags["wikidata_backed"]:
     ED-05 logged as strength
 ```
 
-### 2d. No skip for FS
+### 2d. Blocked / disallowed / errored / noindex fetch → skip FS **and** ED
 
-Freshness checks run regardless of DV flags — a bot-blocked page still has
-a freshness problem worth surfacing (via the "no cache headers" or
-"no date metadata" findings).  
-Exception: if `page_result["error"]` is set (network failure), FS is skipped.
+```
+if dv_flags["dv13_fired"] or dv_flags["dv16_fired"]
+   or page_result["blocked"] or page_result["robots_disallowed"]
+   or page_result["error"] or page_result["noindex"]:
+    skip all FS checks   (no readable / in-scope page to assess)
+    skip all ED checks   (no readable identity signal; DV owns the page)
+```
+
+A `noindex` page is `intentionally_excluded` — the site has declared it out of
+scope, so no discoverability/engagement finding applies to it.
+
+DV-13 / DV-16 are the single owning finding for an inaccessible page. Running
+FS or ED on the challenge/error HTML only produces `unscored` noise or a
+domain-derived phantom entity. EN is already routed to EN-12 by rule 2a.
+
+### 2e. Entity-Disambiguation is site-level
+
+ED-01 … ED-06 run only on **identity-relevant pages**: the homepage, or a URL
+whose path names the organisation (`/about`, `/company`, `/who-we-are`,
+`/our-story`, `/contact`, `/team`, `/leadership`, `/impressum`, `/corporate`).
+On every other crawled page the ED skill returns an empty result, so one
+identity defect is not re-emitted once per product / category / article URL.
 
 ---
 
@@ -89,7 +107,8 @@ collapses duplicate strength IDs.
 
 | Condition | Action |
 |-----------|--------|
-| Same finding ID fires on ≥ 3 pages | Escalate severity by one level (low→medium, medium→high) |
+| Same finding ID fires on **every** audited page (and ≥ 3) | Escalate severity by one level (`medium`→`high`, `high`→`critical`). A genuine site-wide defect only — a wide crawl that merely visits many pages does **not** trigger this. |
+| Base severity is `low` | Never escalated (a low-severity nit repeated site-wide is still a nit) |
 | DV-01 fires AND page has 0 indexable words | Keep as `critical` (already set by `dv01_critical` flag) |
 
 ---

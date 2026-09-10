@@ -1,15 +1,17 @@
 {
   "site": "www.python.org",
-  "audited_at": "2026-09-08T06:15:15.790946Z",
+  "audited_at": "2026-09-10T15:12:28.452124Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-08T06:15:15.790946Z",
+  "generated_at": "2026-09-10T15:12:28.452124Z",
   "target_url": "https://www.python.org/",
   "pages_audited": [
-    "https://www.python.org/"
+    "https://www.python.org/",
+    "https://www.python.org/psf/",
+    "https://www.python.org/jobs/"
   ],
   "audit_config": {
-    "max_pages": 1,
-    "timeout_seconds": 30,
+    "max_pages": 3,
+    "timeout_seconds": 25,
     "skills_run": [
       "crawl-render-audit",
       "freshness-corroboration",
@@ -20,16 +22,16 @@
   "summary": {
     "total_findings": 8,
     "critical": 0,
-    "high": 0,
-    "medium": 4,
+    "high": 2,
+    "medium": 2,
     "low": 4,
     "critical_findings": 0,
-    "high_findings": 0,
-    "medium_findings": 4,
+    "high_findings": 2,
+    "medium_findings": 2,
     "low_findings": 4,
-    "total_flag_only": 2,
+    "total_flag_only": 6,
     "total_strengths": 1,
-    "overall_health": "fair",
+    "overall_health": "poor",
     "category_scores": {
       "DV": 2,
       "FS": 3,
@@ -41,14 +43,31 @@
     {
       "id": "DV-02",
       "title": "Missing/empty head tags: twitter:title, twitter:description",
-      "severity": "medium",
+      "severity": "high",
       "evidence": "Page https://www.python.org/ is missing these <head> fields (absent or empty): twitter:title, twitter:description.",
       "suggested_action": {
-        "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' — currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+        "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' \u2014 currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
         "priority": "medium"
       },
       "pages": [
-        "https://www.python.org/"
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
+        "https://www.python.org/jobs/"
+      ]
+    },
+    {
+      "id": "FS-01",
+      "title": "Stale 'copyright notice' references 2001 (9019 days ago)",
+      "severity": "high",
+      "evidence": "Page https://www.python.org/ contains a 'copyright notice' referencing 2001, which is 9019 days in the past. Snippet: '<span class=\"pre\">Copyright &copy;2001-2026.</span>'.",
+      "suggested_action": {
+        "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
+        "priority": "medium"
+      },
+      "pages": [
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
+        "https://www.python.org/jobs/"
       ]
     },
     {
@@ -57,20 +76,7 @@
       "severity": "medium",
       "evidence": "The homepage https://www.python.org/ contains no sentence that states what 'Welcome to Python.org' is as a company/platform. The page describes individual products or features but never introduces the parent entity.",
       "suggested_action": {
-        "summary": "Add a short 'what is Welcome to Python.org' section (2–3 plain-text sentences) to the homepage — AI assistants use this to understand and cite the entity accurately.",
-        "priority": "medium"
-      },
-      "pages": [
-        "https://www.python.org/"
-      ]
-    },
-    {
-      "id": "FS-01",
-      "title": "Stale 'copyright notice' references 2001 (9017 days ago)",
-      "severity": "medium",
-      "evidence": "Page https://www.python.org/ contains a 'copyright notice' referencing 2001, which is 9017 days in the past. Snippet: '<span class=\"pre\">Copyright &copy;2001-2026.</span>'.",
-      "suggested_action": {
-        "summary": "Remove or update the copyright notice referencing 2001 — that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
+        "summary": "Add a short 'what is Welcome to Python.org' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
         "priority": "medium"
       },
       "pages": [
@@ -83,7 +89,7 @@
       "severity": "medium",
       "evidence": "Page https://www.python.org/ links to Wikipedia/Wikidata from the DOM but does not include this URL in the Organization JSON-LD sameAs field.",
       "suggested_action": {
-        "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Welcome to Python.org' — it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
+        "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Welcome to Python.org' \u2014 it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
         "priority": "medium"
       },
       "pages": [
@@ -96,7 +102,7 @@
       "severity": "low",
       "evidence": "Page https://www.python.org/ has no article:published_time, no article:modified_time meta tag, and no visible 'last updated / as of [date]' text in the body.",
       "suggested_action": {
-        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
+        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
         "priority": "low"
       },
       "pages": [
@@ -107,26 +113,30 @@
       "id": "FS-04",
       "title": "Nav lists 4 items not reflected in footer",
       "severity": "low",
-      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: '▲the python network', 'skip to content', 'python'...",
+      "evidence": "Page https://www.python.org/: navigation contains 4 substantive items absent from the footer: 'python', 'skip to content', '\u25b2the python network'...",
       "suggested_action": {
-        "summary": "Reconcile nav and footer listings — nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
+        "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
         "priority": "low"
       },
       "pages": [
-        "https://www.python.org/"
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
+        "https://www.python.org/jobs/"
       ]
     },
     {
       "id": "EN-08",
       "title": "Stat element has no static value: 'User Group Events'",
       "severity": "low",
-      "evidence": "Stat/counter element on https://www.python.org/ with label 'User Group Events' has no digit value in raw HTML — likely a JS count-up with no static fallback.",
+      "evidence": "Stat/counter element on https://www.python.org/ with label 'User Group Events' has no digit value in raw HTML \u2014 likely a JS count-up with no static fallback.",
       "suggested_action": {
-        "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) — currently no value appears in a static read.",
+        "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
         "priority": "low"
       },
       "pages": [
-        "https://www.python.org/"
+        "https://www.python.org/",
+        "https://www.python.org/psf/",
+        "https://www.python.org/jobs/"
       ]
     },
     {
@@ -135,7 +145,7 @@
       "severity": "low",
       "evidence": "Page https://www.python.org/ links to social profiles (https://www.linkedin.com/company/python-software-foundation/, https://twitter.com/ThePSF) from the page DOM, but these are not included in the Organization JSON-LD sameAs field for machine-readable entity corroboration.",
       "suggested_action": {
-        "summary": "Add the social profile URLs (https://www.linkedin.com/company/python-software-foundation/, https://twitter.com/ThePSF) to the Organization JSON-LD sameAs array — DOM links help human visitors but structured-data sameAs is what AI assistants and knowledge graph indexers use to associate social profiles with the brand entity.",
+        "summary": "Add the social profile URLs (https://www.linkedin.com/company/python-software-foundation/, https://twitter.com/ThePSF) to the Organization JSON-LD sameAs array \u2014 DOM links help human visitors but structured-data sameAs is what AI assistants and knowledge graph indexers use to associate social profiles with the brand entity.",
         "priority": "low"
       },
       "pages": [
@@ -157,56 +167,97 @@
       "id": "EN-06",
       "type": "flag_only",
       "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage — verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
       "pages": [
         "https://www.python.org/"
+      ]
+    },
+    {
+      "id": "FS-05",
+      "type": "flag_only",
+      "reason": "Facts on https://www.python.org/psf/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
+      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
+      "pages": [
+        "https://www.python.org/psf/"
+      ]
+    },
+    {
+      "id": "EN-06",
+      "type": "flag_only",
+      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/psf/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "pages": [
+        "https://www.python.org/psf/"
+      ]
+    },
+    {
+      "id": "FS-05",
+      "type": "flag_only",
+      "reason": "Facts on https://www.python.org/jobs/ should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
+      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
+      "pages": [
+        "https://www.python.org/jobs/"
+      ]
+    },
+    {
+      "id": "EN-06",
+      "type": "flag_only",
+      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://www.python.org/jobs/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "pages": [
+        "https://www.python.org/jobs/"
       ]
     }
   ],
   "strengths": [
     {
       "id": "EN-10",
-      "title": "Clear layered navigation: 65 named nav sections, 73 footer sitemap links — good orientation for both visitors and crawlers."
+      "title": "Clear layered navigation: 65 named nav sections, 73 footer sitemap links \u2014 good orientation for both visitors and crawlers."
     }
   ],
   "suggested_actions": [
     {
-      "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' — currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+      "summary": "Add a meta description and OG/Twitter tags summarising 'Welcome to Python.org' \u2014 currently twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add a short 'what is Welcome to Python.org' section (2–3 plain-text sentences) to the homepage — AI assistants use this to understand and cite the entity accurately.",
+      "summary": "Remove or update the copyright notice referencing 2001 \u2014 that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Remove or update the copyright notice referencing 2001 — that date has passed, and a stale 'current' claim undermines freshness signals for the whole page, especially when other content is actively maintained.",
+      "summary": "Add a short 'what is Welcome to Python.org' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Welcome to Python.org' — it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
+      "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Welcome to Python.org' \u2014 it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
+      "summary": "Add FAQPage JSON-LD schema to pages containing Q&A content.",
+      "priority": "medium",
+      "detail": "FAQ content was detected on the site. Wrapping questions and answers in schema.org/FAQPage markup allows AI assistants and search engines to quote structured solutions directly in answers."
+    },
+    {
+      "summary": "Reconcile nav and footer listings \u2014 nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
       "priority": "low",
       "detail": ""
     },
     {
-      "summary": "Reconcile nav and footer listings — nav includes 4 items that footer omits, which reads as inconsistent/outdated to crawlers that use both components for site mapping.",
+      "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) \u2014 currently no value appears in a static read.",
       "priority": "low",
       "detail": ""
     },
     {
-      "summary": "Provide a real static fallback value in the HTML for 'User Group Events' (JS can still animate the count-up visually) — currently no value appears in a static read.",
+      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
       "priority": "low",
       "detail": ""
     },
     {
-      "summary": "Add the social profile URLs (https://www.linkedin.com/company/python-software-foundation/, https://twitter.com/ThePSF) to the Organization JSON-LD sameAs array — DOM links help human visitors but structured-data sameAs is what AI assistants and knowledge graph indexers use to associate social profiles with the brand entity.",
+      "summary": "Add the social profile URLs (https://www.linkedin.com/company/python-software-foundation/, https://twitter.com/ThePSF) to the Organization JSON-LD sameAs array \u2014 DOM links help human visitors but structured-data sameAs is what AI assistants and knowledge graph indexers use to associate social profiles with the brand entity.",
       "priority": "low",
       "detail": ""
     },

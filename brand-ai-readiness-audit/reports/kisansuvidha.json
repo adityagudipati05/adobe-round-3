@@ -1,15 +1,15 @@
 {
   "site": "kisansuvidha.gov.in",
-  "audited_at": "2026-09-08T06:10:49.365142Z",
+  "audited_at": "2026-09-10T15:12:20.555001Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-08T06:10:49.365142Z",
+  "generated_at": "2026-09-10T15:12:20.555001Z",
   "target_url": "https://kisansuvidha.gov.in/",
   "pages_audited": [
     "https://kisansuvidha.gov.in/"
   ],
   "audit_config": {
-    "max_pages": 1,
-    "timeout_seconds": 30,
+    "max_pages": 3,
+    "timeout_seconds": 25,
     "skills_run": [
       "crawl-render-audit",
       "freshness-corroboration",
@@ -44,7 +44,7 @@
       "severity": "critical",
       "evidence": "Raw HTML fetch of https://kisansuvidha.gov.in/ returned only 2 body words despite a populated <head> (title='Kisan Suvidha'). All content is likely assembled by client-side JavaScript.",
       "suggested_action": {
-        "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step — currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
+        "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
         "priority": "critical"
       },
       "pages": [
@@ -57,7 +57,7 @@
       "severity": "critical",
       "evidence": "Raw HTML of https://kisansuvidha.gov.in/ contains 0 JSON-LD script block(s), none of which parsed as a valid schema.org object.",
       "suggested_action": {
-        "summary": "Add Organization JSON-LD to this homepage/landing page — currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
+        "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
         "priority": "critical"
       },
       "pages": [
@@ -70,7 +70,7 @@
       "severity": "medium",
       "evidence": "Page https://kisansuvidha.gov.in/ is missing these <head> fields (absent or empty): og:image.",
       "suggested_action": {
-        "summary": "Add a meta description and OG/Twitter tags summarising 'Kisan Suvidha' — currently og:image are empty, giving AI assistants no summary text to preview or cite.",
+        "summary": "Add a meta description and OG/Twitter tags summarising 'Kisan Suvidha' \u2014 currently og:image are empty, giving AI assistants no summary text to preview or cite.",
         "priority": "medium"
       },
       "pages": [
@@ -83,7 +83,7 @@
       "severity": "medium",
       "evidence": "The homepage https://kisansuvidha.gov.in/ contains no sentence that states what 'Kisan Suvidha' is as a company/platform. The page describes individual products or features but never introduces the parent entity.",
       "suggested_action": {
-        "summary": "Add a short 'what is Kisan Suvidha' section (2–3 plain-text sentences) to the homepage — AI assistants use this to understand and cite the entity accurately.",
+        "summary": "Add a short 'what is Kisan Suvidha' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
         "priority": "medium"
       },
       "pages": [
@@ -96,7 +96,7 @@
       "severity": "medium",
       "evidence": "Page https://kisansuvidha.gov.in/ has no links to official social profiles (LinkedIn, Twitter/X, Facebook, GitHub, etc.) in DOM or structured data sameAs.",
       "suggested_action": {
-        "summary": "Add official social profile URLs for 'Kisan Suvidha' to the footer AND to the Organization JSON-LD sameAs field — social profiles allow AI assistants to corroborate entity identity across platforms.",
+        "summary": "Add official social profile URLs for 'Kisan Suvidha' to the footer AND to the Organization JSON-LD sameAs field \u2014 social profiles allow AI assistants to corroborate entity identity across platforms.",
         "priority": "medium"
       },
       "pages": [
@@ -109,7 +109,7 @@
       "severity": "low",
       "evidence": "Page https://kisansuvidha.gov.in/ has no article:published_time, no article:modified_time meta tag, and no visible 'last updated / as of [date]' text in the body.",
       "suggested_action": {
-        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
+        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
         "priority": "low"
       },
       "pages": [
@@ -131,7 +131,7 @@
       "id": "ED-05",
       "type": "flag_only",
       "reason": "No Wikipedia or Wikidata link found on https://kisansuvidha.gov.in/ for 'Kisan Suvidha'. An external search step is required to determine whether a Wikipedia or Wikidata entry exists for this entity.",
-      "recommendation": "Search Wikipedia for 'Kisan Suvidha' and Wikidata for a Q-number. If an entry exists: add the URL to the Organization sameAs field to anchor entity identity. If no entry exists: consider creating a neutral, sourced Wikipedia stub or a Wikidata entry — this provides the strongest possible machine-readable identity signal for AI assistants.",
+      "recommendation": "Search Wikipedia for 'Kisan Suvidha' and Wikidata for a Q-number. If an entry exists: add the URL to the Organization sameAs field to anchor entity identity. If no entry exists: consider creating a neutral, sourced Wikipedia stub or a Wikidata entry \u2014 this provides the strongest possible machine-readable identity signal for AI assistants.",
       "pages": [
         "https://kisansuvidha.gov.in/"
       ]
@@ -140,32 +140,32 @@
   "strengths": [],
   "suggested_actions": [
     {
-      "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step — currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
+      "summary": "Move content for 'Kisan Suvidha' to server-side rendering (SSR) or a static prerender step \u2014 currently {wc} words appear in raw HTML, leaving crawlers with nothing to index. This page is routed to EN-13 (engagement not assessed).",
       "priority": "critical",
       "detail": ""
     },
     {
-      "summary": "Add Organization JSON-LD to this homepage/landing page — currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
+      "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
       "priority": "critical",
       "detail": ""
     },
     {
-      "summary": "Add a meta description and OG/Twitter tags summarising 'Kisan Suvidha' — currently og:image are empty, giving AI assistants no summary text to preview or cite.",
+      "summary": "Add a meta description and OG/Twitter tags summarising 'Kisan Suvidha' \u2014 currently og:image are empty, giving AI assistants no summary text to preview or cite.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add a short 'what is Kisan Suvidha' section (2–3 plain-text sentences) to the homepage — AI assistants use this to understand and cite the entity accurately.",
+      "summary": "Add a short 'what is Kisan Suvidha' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add official social profile URLs for 'Kisan Suvidha' to the footer AND to the Organization JSON-LD sameAs field — social profiles allow AI assistants to corroborate entity identity across platforms.",
+      "summary": "Add official social profile URLs for 'Kisan Suvidha' to the footer AND to the Organization JSON-LD sameAs field \u2014 social profiles allow AI assistants to corroborate entity identity across platforms.",
       "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
+      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
       "priority": "low",
       "detail": ""
     },

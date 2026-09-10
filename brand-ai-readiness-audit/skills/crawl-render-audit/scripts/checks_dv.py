@@ -102,6 +102,42 @@ def _netloc(page_result: dict) -> str:
     return urllib.parse.urlparse(_page_url(page_result)).netloc
 
 
+_PRODUCT_TITLE_RE = re.compile(
+    r"(\d+\s*(\"|''|inch|inches|hz|khz|ghz|watt|kg|lbs|ml|oz|gb|tb|mp|px))"
+    r"|\b\d{3,}\b"
+    r"|\b[A-Z0-9]{2,}[-/][A-Z0-9]{2,}\b"
+    r"|\b(4k|8k|uhd|hdr|qled|oled|nvme|ssd|ddr\d)\b",
+    re.IGNORECASE,
+)
+
+
+def _display_entity(page_result: dict) -> str:
+    """
+    A short brand/site label safe to quote in suggested-action text — never a
+    full product or article title. Prefers og:site_name, then a clean <title>
+    segment, then the domain label.
+    """
+    head = page_result.get("head", {})
+    site_name = (head.get("og_site_name") or "").strip()
+    if site_name:
+        return site_name
+    for raw in (head.get("og_title", ""), head.get("title", "")):
+        raw = (raw or "").strip()
+        if not raw:
+            continue
+        segs = [s.strip() for s in re.split(r"\s+[–|\-:]{1,2}\s+", raw) if s.strip()]
+        if not segs:
+            continue
+        for seg in (segs[0], re.sub(r"\.\w{2,3}$", "", segs[-1]).strip()):
+            if seg and len(seg) <= 40 and not _PRODUCT_TITLE_RE.search(seg):
+                return seg
+    host = _netloc(page_result)
+    if host.startswith("www."):
+        host = host[4:]
+    return (host.split(".")[0].replace("-", " ").replace("_", " ").title()
+            if host else "this site")
+
+
 # ── DV-01: JS-render gap / near-empty body ───────────────────────────────────
 
 def check_dv01(page_result: dict) -> Optional[dict]:
@@ -199,7 +235,7 @@ def check_dv02(page_result: dict) -> Optional[dict]:
 
     description_absent = "meta[description]" in missing
     severity = "high" if description_absent else "medium"
-    entity = head.get("title") or urllib.parse.urlparse(url).netloc
+    entity = _display_entity(page_result)
 
     return _make_finding(
         "DV-02",
@@ -324,7 +360,7 @@ def check_dv04(page_result: dict) -> Optional[dict]:
     body = page_result.get("body_text", "")
     snippet = (body[:120] + "…") if len(body) > 120 else body
     head = page_result.get("head", {})
-    entity = head.get("og_title") or head.get("title") or _netloc(page_result)
+    entity = _display_entity(page_result)
 
     return _make_finding(
         "DV-04",
@@ -507,11 +543,17 @@ def check_dv07(page_result: dict) -> Optional[dict]:
 
     url = _page_url(page_result)
 
-    # Find testimonial containers
+    # A real "testimonials / what our clients say" *section label* — a heading
+    # or a container whose own class/id names it. Matching the word "review"
+    # anywhere in body text (e.g. "peer review", "book review") is far too
+    # loose and misfires on encyclopedic / editorial pages.
     testimonial_els = [
-        el for el in s.find_all(string=TESTIMONIAL_SECTION_RE)
-        if el.find_parent(["section", "div", "article"])
-    ]
+        h for h in s.find_all(["h1", "h2", "h3", "h4", "h5"])
+        if TESTIMONIAL_SECTION_RE.search(h.get_text(" ", strip=True))
+    ] + s.find_all(
+        class_=re.compile(r"testimonial|client-say|clients-say|customer-review", re.I)
+    ) + s.find_all(id=re.compile(r"testimonial", re.I))
+
     quote_els = (
         s.find_all("blockquote") +
         s.find_all(class_=re.compile(r"testimonial|quote|review-text", re.I))
@@ -529,6 +571,14 @@ def check_dv07(page_result: dict) -> Optional[dict]:
     # Proxy: generic phrasing count
     all_text = " ".join(el.get_text() for el in (quote_els or testimonial_els))
     generic_matches = len(GENERIC_PHRASING_RE.findall(all_text))
+
+    # Only a defect when there is a real signal of a *marketing testimonial*
+    # block: either explicit "testimonials / what our clients say" section
+    # language, or near-identical generic praise phrasing. Bare
+    # <blockquote>/`.review` elements with none of that are usually genuine
+    # product reviews or editorial pull-quotes — not a false-trust pattern.
+    if not testimonial_els and generic_matches == 0:
+        return None
 
     return _make_finding(
         "DV-07",
@@ -718,7 +768,7 @@ def check_dv11(page_result: dict) -> Optional[dict]:
         return None
 
     head = page_result.get("head", {})
-    entity = head.get("og_title") or head.get("title") or _netloc(page_result)
+    entity = _display_entity(page_result)
 
     return _make_finding(
         "DV-11",
@@ -870,7 +920,19 @@ def check_dv15(page_result: dict) -> Optional[dict]:
     worst_count = max(len(v) for v in repeated.values())
     worst_sample = next(iter(repeated.values()))[0]
 
-    severity = "high" if worst_count > 10 else "medium" if worst_count > 5 else "low"
+    # Image galleries / media carousels legitimately clone one caption block per
+    # slide; that is a minor extraction nuisance, not a manipulation signal.
+    GALLERY_UI_RE = re.compile(
+        r"(image\s+\d+\s+of|view\s+all|hero\s+image|\bslide\b|thumbnail"
+        r"|next\s+image|previous\s+image|zoom|gallery)",
+        re.IGNORECASE,
+    )
+    is_gallery = bool(GALLERY_UI_RE.search(worst_sample))
+
+    if is_gallery:
+        severity = "low"
+    else:
+        severity = "high" if worst_count > 20 else "medium" if worst_count > 10 else "low"
 
     return _make_finding(
         "DV-15",

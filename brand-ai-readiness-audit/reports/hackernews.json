@@ -1,15 +1,17 @@
 {
   "site": "news.ycombinator.com",
-  "audited_at": "2026-09-08T06:14:39.251612Z",
+  "audited_at": "2026-09-10T15:12:18.066203Z",
   "schema_version": "1.0.0",
-  "generated_at": "2026-09-08T06:14:39.251612Z",
+  "generated_at": "2026-09-10T15:12:18.066203Z",
   "target_url": "https://news.ycombinator.com/",
   "pages_audited": [
-    "https://news.ycombinator.com/"
+    "https://news.ycombinator.com/",
+    "https://news.ycombinator.com",
+    "https://news.ycombinator.com/news"
   ],
   "audit_config": {
-    "max_pages": 1,
-    "timeout_seconds": 30,
+    "max_pages": 3,
+    "timeout_seconds": 25,
     "skills_run": [
       "crawl-render-audit",
       "freshness-corroboration",
@@ -18,76 +20,124 @@
     ]
   },
   "summary": {
-    "total_findings": 4,
-    "critical": 1,
+    "total_findings": 7,
+    "critical": 2,
     "high": 1,
-    "medium": 0,
-    "low": 2,
-    "critical_findings": 1,
+    "medium": 3,
+    "low": 1,
+    "critical_findings": 2,
     "high_findings": 1,
-    "medium_findings": 0,
-    "low_findings": 2,
-    "total_flag_only": 3,
+    "medium_findings": 3,
+    "low_findings": 1,
+    "total_flag_only": 6,
     "total_strengths": 0,
-    "overall_health": "poor",
+    "overall_health": "critical",
     "category_scores": {
-      "DV": 2,
+      "DV": 4,
       "FS": 1,
       "EN": 1,
-      "ED": 0
+      "ED": 1
     }
   },
   "findings": [
+    {
+      "id": "DV-02",
+      "title": "Missing/empty head tags: meta[description], og:title, og:description, og:image, twitter:title, twitter:description",
+      "severity": "critical",
+      "evidence": "Page https://news.ycombinator.com/ is missing these <head> fields (absent or empty): meta[description], og:title, og:description, og:image, twitter:title, twitter:description.",
+      "suggested_action": {
+        "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+        "priority": "high"
+      },
+      "pages": [
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com",
+        "https://news.ycombinator.com/news"
+      ]
+    },
     {
       "id": "DV-03",
       "title": "No valid JSON-LD structured data (Organization expected)",
       "severity": "critical",
       "evidence": "Raw HTML of https://news.ycombinator.com/ contains 0 JSON-LD script block(s), none of which parsed as a valid schema.org object.",
       "suggested_action": {
-        "summary": "Add Organization JSON-LD to this homepage/landing page — currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
+        "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
         "priority": "critical"
       },
       "pages": [
-        "https://news.ycombinator.com/"
-      ]
-    },
-    {
-      "id": "DV-02",
-      "title": "Missing/empty head tags: meta[description], og:title, og:description, og:image, twitter:title, twitter:description",
-      "severity": "high",
-      "evidence": "Page https://news.ycombinator.com/ is missing these <head> fields (absent or empty): meta[description], og:title, og:description, og:image, twitter:title, twitter:description.",
-      "suggested_action": {
-        "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' — currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
-        "priority": "high"
-      },
-      "pages": [
-        "https://news.ycombinator.com/"
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com",
+        "https://news.ycombinator.com/news"
       ]
     },
     {
       "id": "FS-03",
       "title": "No 'last updated' or publication date signal on content page",
-      "severity": "low",
-      "evidence": "Page https://news.ycombinator.com/ has no article:published_time, no article:modified_time meta tag, and no visible 'last updated / as of [date]' text in the body.",
+      "severity": "high",
+      "evidence": "Page https://news.ycombinator.com/news has no article:published_time, no article:modified_time meta tag, and no visible 'last updated / as of [date]' text in the body.",
       "suggested_action": {
-        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
-        "priority": "low"
+        "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
+        "priority": "medium"
       },
       "pages": [
-        "https://news.ycombinator.com/"
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com",
+        "https://news.ycombinator.com/news"
       ]
     },
     {
-      "id": "EN-08",
-      "title": "Stat element has no static value: 'Leaving VMware just got harder after Broadcom pulled VDDK do'",
-      "severity": "low",
-      "evidence": "Stat/counter element on https://news.ycombinator.com/ with label 'Leaving VMware just got harder after Broadcom pulled VDDK do' has no digit value in raw HTML — likely a JS count-up with no static fallback.",
+      "id": "DV-11",
+      "title": "No company-level orientation text on homepage",
+      "severity": "medium",
+      "evidence": "The homepage https://news.ycombinator.com/ contains no sentence that states what 'Hacker News' is as a company/platform. The page describes individual products or features but never introduces the parent entity.",
       "suggested_action": {
-        "summary": "Provide a real static fallback value in the HTML for 'Leaving VMware just got harder after Broadcom pulled VDDK do' (JS can still animate the count-up visually) — currently no value appears in a static read.",
+        "summary": "Add a short 'what is Hacker News' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
+        "priority": "medium"
+      },
+      "pages": [
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com"
+      ]
+    },
+    {
+      "id": "DV-20",
+      "title": "High boilerplate-to-content ratio: only 99% is primary content",
+      "severity": "medium",
+      "evidence": "Page https://news.ycombinator.com/news: ~732 primary-content words out of 733 total words (99% unique content). No semantic <article>/<main> boundary found \u2014 extraction tools cannot reliably isolate primary content.",
+      "suggested_action": {
+        "summary": "Wrap the primary content in a clear semantic boundary (<article> or <main>) so extraction tools can reliably isolate it from surrounding site chrome (related links, sidebars, nav, footer) \u2014 currently only ~99% of page text is primary content.",
+        "priority": "medium"
+      },
+      "pages": [
+        "https://news.ycombinator.com/news"
+      ]
+    },
+    {
+      "id": "ED-05",
+      "title": "Wikipedia/Wikidata linked in DOM but not in Organization schema sameAs",
+      "severity": "medium",
+      "evidence": "Page https://news.ycombinator.com/ links to Wikipedia/Wikidata from the DOM but does not include this URL in the Organization JSON-LD sameAs field.",
+      "suggested_action": {
+        "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Hacker News' \u2014 it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
+        "priority": "medium"
+      },
+      "pages": [
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com"
+      ]
+    },
+    {
+      "id": "EN-09",
+      "title": "No trust content (testimonials, reviews, case studies) on key page",
+      "severity": "low",
+      "evidence": "Page https://news.ycombinator.com/ has no testimonials, reviews, client quotes, or case-study snippets \u2014 only logos/brand names at most.",
+      "suggested_action": {
+        "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
         "priority": "low"
       },
       "pages": [
-        "https://news.ycombinator.com/"
+        "https://news.ycombinator.com/",
+        "https://news.ycombinator.com"
       ]
     }
   ],
@@ -105,40 +155,87 @@
       "id": "EN-06",
       "type": "flag_only",
       "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com/. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
-      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage — verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
       "pages": [
         "https://news.ycombinator.com/"
       ]
     },
     {
-      "id": "ED-05",
+      "id": "FS-05",
       "type": "flag_only",
-      "reason": "No Wikipedia or Wikidata link found on https://news.ycombinator.com/ for 'Hacker News'. An external search step is required to determine whether a Wikipedia or Wikidata entry exists for this entity.",
-      "recommendation": "Search Wikipedia for 'Hacker News' and Wikidata for a Q-number. If an entry exists: add the URL to the Organization sameAs field to anchor entity identity. If no entry exists: consider creating a neutral, sourced Wikipedia stub or a Wikidata entry — this provides the strongest possible machine-readable identity signal for AI assistants.",
+      "reason": "Facts on https://news.ycombinator.com should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
+      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
       "pages": [
-        "https://news.ycombinator.com/"
+        "https://news.ycombinator.com"
+      ]
+    },
+    {
+      "id": "EN-06",
+      "type": "flag_only",
+      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "pages": [
+        "https://news.ycombinator.com"
+      ]
+    },
+    {
+      "id": "FS-05",
+      "type": "flag_only",
+      "reason": "Facts on https://news.ycombinator.com/news should be spot-checked against third-party directories, retailers, or press coverage for outdated versions (old price, old logo, discontinued product, changed leadership). This requires checking sources beyond this page and cannot be confirmed from a single-page fetch.",
+      "recommendation": "Manually spot-check key facts (pricing, team, product specs, statistics) against third-party sources (Google My Business, LinkedIn, press coverage, industry directories) to identify and correct any outdated information circulating externally.",
+      "pages": [
+        "https://news.ycombinator.com/news"
+      ]
+    },
+    {
+      "id": "EN-06",
+      "type": "flag_only",
+      "reason": "Deep-link matching cannot be verified from a single-page fetch of https://news.ycombinator.com/news. AI assistants referring visitors to a brand may link to the homepage rather than the specific product/service page matching the user's query.",
+      "recommendation": "Ensure AI-assistant-referred and search-referred visitors land on the specific product/service page matching their query, not the homepage \u2014 verify that deep links exist for each key product/service, with unique URLs and descriptive titles. Test by asking an AI assistant about your key products and checking where it links.",
+      "pages": [
+        "https://news.ycombinator.com/news"
       ]
     }
   ],
   "strengths": [],
   "suggested_actions": [
     {
-      "summary": "Add Organization JSON-LD to this homepage/landing page — currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
+      "summary": "Add Organization JSON-LD to this homepage/landing page \u2014 currently 0 valid structured data blocks are present; crawlers have no machine-readable identity or facts to extract.",
       "priority": "critical",
       "detail": ""
     },
     {
-      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' — currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
+      "summary": "Add a meta description and OG/Twitter tags summarising 'Hacker News' \u2014 currently meta[description], og:title, og:description, og:image, twitter:title, twitter:description are empty, giving AI assistants no summary text to preview or cite.",
       "priority": "high",
       "detail": ""
     },
     {
-      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently — undated content is treated as potentially stale.",
-      "priority": "low",
+      "summary": "Add a visible 'last updated' or version note (e.g. 'Updated September 2026') so AI assistants have a freshness signal to cite confidently \u2014 undated content is treated as potentially stale.",
+      "priority": "medium",
       "detail": ""
     },
     {
-      "summary": "Provide a real static fallback value in the HTML for 'Leaving VMware just got harder after Broadcom pulled VDDK do' (JS can still animate the count-up visually) — currently no value appears in a static read.",
+      "summary": "Add a short 'what is Hacker News' section (2\u20133 plain-text sentences) to the homepage \u2014 AI assistants use this to understand and cite the entity accurately.",
+      "priority": "medium",
+      "detail": ""
+    },
+    {
+      "summary": "Add the Wikipedia/Wikidata URL to the Organization JSON-LD sameAs array for 'Hacker News' \u2014 it's already linked from the DOM; formalising it in structured data makes the entity-identity connection machine-readable.",
+      "priority": "medium",
+      "detail": ""
+    },
+    {
+      "summary": "Wrap the primary content in a clear semantic boundary (<article> or <main>) so extraction tools can reliably isolate it from surrounding site chrome (related links, sidebars, nav, footer) \u2014 currently only ~99% of page text is primary content.",
+      "priority": "medium",
+      "detail": ""
+    },
+    {
+      "summary": "Add FAQPage JSON-LD schema to pages containing Q&A content.",
+      "priority": "medium",
+      "detail": "FAQ content was detected on the site. Wrapping questions and answers in schema.org/FAQPage markup allows AI assistants and search engines to quote structured solutions directly in answers."
+    },
+    {
+      "summary": "Add 2\u20133 named, attributed client quotes or case-study snippets \u2014 currently only brand/client logos appear with no accompanying text, giving visitors no social proof they can read or that a crawler can cite.",
       "priority": "low",
       "detail": ""
     },
