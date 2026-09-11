@@ -253,6 +253,11 @@ If collision risk exists AND the missing schema lacks `identifier`/`sameAs` fiel
 
 ---
 
+> **DV-14 is retired.** It was consolidated into DV-13 during development
+> (both covered crawler/WAF blocking; keeping one avoided a false ownership
+> split) and the id was not reused. The numbering gap here and in
+> `checks_dv.py` / `cascading_rules.md` is intentional, not an omission.
+
 ## DV-15 — Structural content duplication (broken carousel/slider render)
 
 **Detection:** Script-able. Hash/fingerprint DOM blocks (`div`, `section`, `article`, `li`); count identical sibling blocks. Threshold: **> 5** exact repeats of a **substantial prose block (≥ 120 chars)** — short repeated strings are nav chips, price disclaimers, or repeated CTAs, not a render artefact. Report on the single most-repeated block.

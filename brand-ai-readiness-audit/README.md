@@ -85,6 +85,7 @@ The marketplace is configured via `marketplace.json` and comprises 5 distinct sk
   - `DV-11`: Root page lacking company orientation context ("what is X").
   - `DV-12`: Multi-page identical `<title>` or `meta[description]` across distinct URLs.
   - `DV-13`: Bot block / WAF challenge detected (HTTP status 403/429/503 or Cloudflare challenge).
+  - *(`DV-14` retired — consolidated into `DV-13` during development; id intentionally not reused, see `dv_checklist.md`.)*
   - `DV-15`: A substantial prose block (≥ 120 chars) mechanically repeated > 5 times; gallery/disclaimer boilerplate capped at Low; never escalated by crawl breadth.
   - `DV-16`: `robots.txt` disallows crawling for target User-Agent.
   - `DV-17`: Follow-up search recommendation emitted when bot-blocked (`DV-13`/`DV-16`).
