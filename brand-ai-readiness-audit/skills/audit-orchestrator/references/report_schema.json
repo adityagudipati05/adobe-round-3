@@ -121,8 +121,8 @@
       "type": "object",
       "required": ["id", "title", "severity", "evidence", "suggested_action", "pages"],
       "properties": {
-        "id":       { "type": "string", "pattern": "^(DV|FS|EN|ED)-\\d{2}$",
-                      "description": "Check ID, e.g. 'DV-01', 'EN-07'." },
+        "id":       { "type": "string", "pattern": "^(DV|FS|EN|ED)-\\d{2}[a-z]?$",
+                      "description": "Check ID, e.g. 'DV-01', 'EN-07'. A few checks split into lettered sub-checks with a distinct root cause under one shared id space (e.g. 'DV-05a'/'DV-05b' image-alt vs. address-in-map-link, 'DV-09a'/'DV-09b' link-stuffing vs. keyword-stuffing)." },
         "title":    { "type": "string" },
         "severity": { "type": "string", "enum": ["critical","high","medium","low"] },
         "evidence": { "type": "string",
